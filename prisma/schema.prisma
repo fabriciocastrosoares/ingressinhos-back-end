@@ -1,0 +1,130 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ORGANIZER
+  CLIENT
+  GATEKEEPER
+}
+
+enum ReservationStatus {
+  CONFIRMED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  APPROVED
+  DECLINED
+}
+
+enum TicketStatus {
+  VALID
+  USED
+  CANCELLED
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role
+  createdAt    DateTime @default(now())
+
+  eventsOrganized Event[]            @relation("OrganizerEvents")
+  reservations    Reservation[]
+  validations     TicketValidation[] @relation("GatekeeperValidations")
+  tickets         Ticket[]           @relation("TicketOwner")
+
+  @@map("users")
+}
+
+model Event {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  date        DateTime
+  location    String
+  capacity    Int
+  soldCount   Int      @default(0)
+  price       Decimal  @db.Decimal(10, 2)
+  externalId  String
+
+  organizerId String
+  organizer   User   @relation("OrganizerEvents", fields: [organizerId], references: [id])
+
+  reservations Reservation[]
+  tickets      Ticket[]
+
+  createdAt DateTime @default(now())
+
+  @@map("events")
+}
+
+model Reservation {
+  id        String            @id @default(uuid())
+  userId    String
+  eventId   String
+  quantity  Int
+  status    ReservationStatus
+  createdAt DateTime          @default(now())
+
+  user    User     @relation(fields: [userId], references: [id])
+  event   Event    @relation(fields: [eventId], references: [id])
+  payment Payment?
+  tickets Ticket[]
+
+  @@map("reservations")
+}
+
+model Payment {
+  id            String        @id @default(uuid())
+  reservationId String        @unique
+  status        PaymentStatus
+  amount        Decimal       @db.Decimal(10, 2)
+  createdAt     DateTime      @default(now())
+
+  reservation Reservation @relation(fields: [reservationId], references: [id])
+
+  @@map("payments")
+}
+
+model Ticket {
+  id            String       @id @default(uuid())
+  reservationId String
+  eventId       String
+  ownerId       String
+  code          String       @unique
+  shareToken    String       @unique @default(uuid())
+  status        TicketStatus @default(VALID)
+
+  createdAt DateTime @default(now())
+
+  owner       User        @relation("TicketOwner", fields: [ownerId], references: [id])
+  reservation Reservation @relation(fields: [reservationId], references: [id])
+  event       Event       @relation(fields: [eventId], references: [id])
+
+  validations TicketValidation[]
+
+  @@map("tickets")
+}
+
+model TicketValidation {
+  id           String   @id @default(uuid())
+  ticketId     String
+  gatekeeperId String
+  result       String
+  createdAt    DateTime @default(now())
+
+  ticket     Ticket @relation(fields: [ticketId], references: [id])
+  gatekeeper User   @relation("GatekeeperValidations", fields: [gatekeeperId], references: [id])
+
+  @@map("ticket_validations")
+}
