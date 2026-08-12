@@ -31,19 +31,31 @@ enum TicketStatus {
 }
 
 model User {
-  id           String   @id @default(uuid())
-  name         String
-  email        String   @unique
-  passwordHash String
-  role         Role
-  createdAt    DateTime @default(now())
+  id        String   @id @default(uuid())
+  username  String
+  email     String   @unique
+  password  String
+  role      Role
+  createdAt DateTime @default(now())
 
   eventsOrganized Event[]            @relation("OrganizerEvents")
   reservations    Reservation[]
   validations     TicketValidation[] @relation("GatekeeperValidations")
   tickets         Ticket[]           @relation("TicketOwner")
+  sessions        Session[]
 
   @@map("users")
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
+  token     String
+  createdAt DateTime @default(now())
+
+  userId String
+
+  @@map("sessions")
 }
 
 model Event {

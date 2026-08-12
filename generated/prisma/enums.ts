@@ -11,8 +11,33 @@
 
 export const Role = {
   ORGANIZER: 'ORGANIZER',
-  RECEPTION: 'RECEPTION',
-  CLIENT: 'CLIENT'
+  CLIENT: 'CLIENT',
+  GATEKEEPER: 'GATEKEEPER'
 } as const
 
 export type Role = (typeof Role)[keyof typeof Role]
+
+
+export const ReservationStatus = {
+  CONFIRMED: 'CONFIRMED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type ReservationStatus = (typeof ReservationStatus)[keyof typeof ReservationStatus]
+
+
+export const PaymentStatus = {
+  APPROVED: 'APPROVED',
+  DECLINED: 'DECLINED'
+} as const
+
+export type PaymentStatus = (typeof PaymentStatus)[keyof typeof PaymentStatus]
+
+
+export const TicketStatus = {
+  VALID: 'VALID',
+  USED: 'USED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type TicketStatus = (typeof TicketStatus)[keyof typeof TicketStatus]
