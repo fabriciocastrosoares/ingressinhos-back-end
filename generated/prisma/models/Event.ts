@@ -27,19 +27,23 @@ export type AggregateEvent = {
 }
 
 export type EventAvgAggregateOutputType = {
+  id: number | null
   capacity: number | null
   soldCount: number | null
   price: runtime.Decimal | null
+  organizerId: number | null
 }
 
 export type EventSumAggregateOutputType = {
+  id: number | null
   capacity: number | null
   soldCount: number | null
   price: runtime.Decimal | null
+  organizerId: number | null
 }
 
 export type EventMinAggregateOutputType = {
-  id: string | null
+  id: number | null
   title: string | null
   description: string | null
   date: Date | null
@@ -48,12 +52,12 @@ export type EventMinAggregateOutputType = {
   soldCount: number | null
   price: runtime.Decimal | null
   externalId: string | null
-  organizerId: string | null
+  organizerId: number | null
   createdAt: Date | null
 }
 
 export type EventMaxAggregateOutputType = {
-  id: string | null
+  id: number | null
   title: string | null
   description: string | null
   date: Date | null
@@ -62,7 +66,7 @@ export type EventMaxAggregateOutputType = {
   soldCount: number | null
   price: runtime.Decimal | null
   externalId: string | null
-  organizerId: string | null
+  organizerId: number | null
   createdAt: Date | null
 }
 
@@ -83,15 +87,19 @@ export type EventCountAggregateOutputType = {
 
 
 export type EventAvgAggregateInputType = {
+  id?: true
   capacity?: true
   soldCount?: true
   price?: true
+  organizerId?: true
 }
 
 export type EventSumAggregateInputType = {
+  id?: true
   capacity?: true
   soldCount?: true
   price?: true
+  organizerId?: true
 }
 
 export type EventMinAggregateInputType = {
@@ -224,7 +232,7 @@ export type EventGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
 }
 
 export type EventGroupByOutputType = {
-  id: string
+  id: number
   title: string
   description: string | null
   date: Date
@@ -233,7 +241,7 @@ export type EventGroupByOutputType = {
   soldCount: number
   price: runtime.Decimal
   externalId: string
-  organizerId: string
+  organizerId: number
   createdAt: Date
   _count: EventCountAggregateOutputType | null
   _avg: EventAvgAggregateOutputType | null
@@ -261,7 +269,7 @@ export type EventWhereInput = {
   AND?: Prisma.EventWhereInput | Prisma.EventWhereInput[]
   OR?: Prisma.EventWhereInput[]
   NOT?: Prisma.EventWhereInput | Prisma.EventWhereInput[]
-  id?: Prisma.StringFilter<"Event"> | string
+  id?: Prisma.IntFilter<"Event"> | number
   title?: Prisma.StringFilter<"Event"> | string
   description?: Prisma.StringNullableFilter<"Event"> | string | null
   date?: Prisma.DateTimeFilter<"Event"> | Date | string
@@ -270,7 +278,7 @@ export type EventWhereInput = {
   soldCount?: Prisma.IntFilter<"Event"> | number
   price?: Prisma.DecimalFilter<"Event"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   externalId?: Prisma.StringFilter<"Event"> | string
-  organizerId?: Prisma.StringFilter<"Event"> | string
+  organizerId?: Prisma.IntFilter<"Event"> | number
   createdAt?: Prisma.DateTimeFilter<"Event"> | Date | string
   organizer?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   reservations?: Prisma.ReservationListRelationFilter
@@ -295,7 +303,7 @@ export type EventOrderByWithRelationInput = {
 }
 
 export type EventWhereUniqueInput = Prisma.AtLeast<{
-  id?: string
+  id?: number
   AND?: Prisma.EventWhereInput | Prisma.EventWhereInput[]
   OR?: Prisma.EventWhereInput[]
   NOT?: Prisma.EventWhereInput | Prisma.EventWhereInput[]
@@ -307,7 +315,7 @@ export type EventWhereUniqueInput = Prisma.AtLeast<{
   soldCount?: Prisma.IntFilter<"Event"> | number
   price?: Prisma.DecimalFilter<"Event"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   externalId?: Prisma.StringFilter<"Event"> | string
-  organizerId?: Prisma.StringFilter<"Event"> | string
+  organizerId?: Prisma.IntFilter<"Event"> | number
   createdAt?: Prisma.DateTimeFilter<"Event"> | Date | string
   organizer?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   reservations?: Prisma.ReservationListRelationFilter
@@ -337,7 +345,7 @@ export type EventScalarWhereWithAggregatesInput = {
   AND?: Prisma.EventScalarWhereWithAggregatesInput | Prisma.EventScalarWhereWithAggregatesInput[]
   OR?: Prisma.EventScalarWhereWithAggregatesInput[]
   NOT?: Prisma.EventScalarWhereWithAggregatesInput | Prisma.EventScalarWhereWithAggregatesInput[]
-  id?: Prisma.StringWithAggregatesFilter<"Event"> | string
+  id?: Prisma.IntWithAggregatesFilter<"Event"> | number
   title?: Prisma.StringWithAggregatesFilter<"Event"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"Event"> | string | null
   date?: Prisma.DateTimeWithAggregatesFilter<"Event"> | Date | string
@@ -346,12 +354,11 @@ export type EventScalarWhereWithAggregatesInput = {
   soldCount?: Prisma.IntWithAggregatesFilter<"Event"> | number
   price?: Prisma.DecimalWithAggregatesFilter<"Event"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   externalId?: Prisma.StringWithAggregatesFilter<"Event"> | string
-  organizerId?: Prisma.StringWithAggregatesFilter<"Event"> | string
+  organizerId?: Prisma.IntWithAggregatesFilter<"Event"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Event"> | Date | string
 }
 
 export type EventCreateInput = {
-  id?: string
   title: string
   description?: string | null
   date: Date | string
@@ -367,7 +374,7 @@ export type EventCreateInput = {
 }
 
 export type EventUncheckedCreateInput = {
-  id?: string
+  id?: number
   title: string
   description?: string | null
   date: Date | string
@@ -376,14 +383,13 @@ export type EventUncheckedCreateInput = {
   soldCount?: number
   price: runtime.Decimal | runtime.DecimalJsLike | number | string
   externalId: string
-  organizerId: string
+  organizerId: number
   createdAt?: Date | string
   reservations?: Prisma.ReservationUncheckedCreateNestedManyWithoutEventInput
   tickets?: Prisma.TicketUncheckedCreateNestedManyWithoutEventInput
 }
 
 export type EventUpdateInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -399,7 +405,7 @@ export type EventUpdateInput = {
 }
 
 export type EventUncheckedUpdateInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
+  id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -408,14 +414,14 @@ export type EventUncheckedUpdateInput = {
   soldCount?: Prisma.IntFieldUpdateOperationsInput | number
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   externalId?: Prisma.StringFieldUpdateOperationsInput | string
-  organizerId?: Prisma.StringFieldUpdateOperationsInput | string
+  organizerId?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   reservations?: Prisma.ReservationUncheckedUpdateManyWithoutEventNestedInput
   tickets?: Prisma.TicketUncheckedUpdateManyWithoutEventNestedInput
 }
 
 export type EventCreateManyInput = {
-  id?: string
+  id?: number
   title: string
   description?: string | null
   date: Date | string
@@ -424,12 +430,11 @@ export type EventCreateManyInput = {
   soldCount?: number
   price: runtime.Decimal | runtime.DecimalJsLike | number | string
   externalId: string
-  organizerId: string
+  organizerId: number
   createdAt?: Date | string
 }
 
 export type EventUpdateManyMutationInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -442,7 +447,7 @@ export type EventUpdateManyMutationInput = {
 }
 
 export type EventUncheckedUpdateManyInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
+  id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -451,7 +456,7 @@ export type EventUncheckedUpdateManyInput = {
   soldCount?: Prisma.IntFieldUpdateOperationsInput | number
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   externalId?: Prisma.StringFieldUpdateOperationsInput | string
-  organizerId?: Prisma.StringFieldUpdateOperationsInput | string
+  organizerId?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -480,9 +485,11 @@ export type EventCountOrderByAggregateInput = {
 }
 
 export type EventAvgOrderByAggregateInput = {
+  id?: Prisma.SortOrder
   capacity?: Prisma.SortOrder
   soldCount?: Prisma.SortOrder
   price?: Prisma.SortOrder
+  organizerId?: Prisma.SortOrder
 }
 
 export type EventMaxOrderByAggregateInput = {
@@ -514,9 +521,11 @@ export type EventMinOrderByAggregateInput = {
 }
 
 export type EventSumOrderByAggregateInput = {
+  id?: Prisma.SortOrder
   capacity?: Prisma.SortOrder
   soldCount?: Prisma.SortOrder
   price?: Prisma.SortOrder
+  organizerId?: Prisma.SortOrder
 }
 
 export type EventScalarRelationFilter = {
@@ -570,14 +579,6 @@ export type NullableStringFieldUpdateOperationsInput = {
   set?: string | null
 }
 
-export type IntFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type DecimalFieldUpdateOperationsInput = {
   set?: runtime.Decimal | runtime.DecimalJsLike | number | string
   increment?: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -615,7 +616,6 @@ export type EventUpdateOneRequiredWithoutTicketsNestedInput = {
 }
 
 export type EventCreateWithoutOrganizerInput = {
-  id?: string
   title: string
   description?: string | null
   date: Date | string
@@ -630,7 +630,7 @@ export type EventCreateWithoutOrganizerInput = {
 }
 
 export type EventUncheckedCreateWithoutOrganizerInput = {
-  id?: string
+  id?: number
   title: string
   description?: string | null
   date: Date | string
@@ -674,7 +674,7 @@ export type EventScalarWhereInput = {
   AND?: Prisma.EventScalarWhereInput | Prisma.EventScalarWhereInput[]
   OR?: Prisma.EventScalarWhereInput[]
   NOT?: Prisma.EventScalarWhereInput | Prisma.EventScalarWhereInput[]
-  id?: Prisma.StringFilter<"Event"> | string
+  id?: Prisma.IntFilter<"Event"> | number
   title?: Prisma.StringFilter<"Event"> | string
   description?: Prisma.StringNullableFilter<"Event"> | string | null
   date?: Prisma.DateTimeFilter<"Event"> | Date | string
@@ -683,12 +683,11 @@ export type EventScalarWhereInput = {
   soldCount?: Prisma.IntFilter<"Event"> | number
   price?: Prisma.DecimalFilter<"Event"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   externalId?: Prisma.StringFilter<"Event"> | string
-  organizerId?: Prisma.StringFilter<"Event"> | string
+  organizerId?: Prisma.IntFilter<"Event"> | number
   createdAt?: Prisma.DateTimeFilter<"Event"> | Date | string
 }
 
 export type EventCreateWithoutReservationsInput = {
-  id?: string
   title: string
   description?: string | null
   date: Date | string
@@ -703,7 +702,7 @@ export type EventCreateWithoutReservationsInput = {
 }
 
 export type EventUncheckedCreateWithoutReservationsInput = {
-  id?: string
+  id?: number
   title: string
   description?: string | null
   date: Date | string
@@ -712,7 +711,7 @@ export type EventUncheckedCreateWithoutReservationsInput = {
   soldCount?: number
   price: runtime.Decimal | runtime.DecimalJsLike | number | string
   externalId: string
-  organizerId: string
+  organizerId: number
   createdAt?: Date | string
   tickets?: Prisma.TicketUncheckedCreateNestedManyWithoutEventInput
 }
@@ -734,7 +733,6 @@ export type EventUpdateToOneWithWhereWithoutReservationsInput = {
 }
 
 export type EventUpdateWithoutReservationsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -749,7 +747,7 @@ export type EventUpdateWithoutReservationsInput = {
 }
 
 export type EventUncheckedUpdateWithoutReservationsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
+  id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -758,13 +756,12 @@ export type EventUncheckedUpdateWithoutReservationsInput = {
   soldCount?: Prisma.IntFieldUpdateOperationsInput | number
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   externalId?: Prisma.StringFieldUpdateOperationsInput | string
-  organizerId?: Prisma.StringFieldUpdateOperationsInput | string
+  organizerId?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tickets?: Prisma.TicketUncheckedUpdateManyWithoutEventNestedInput
 }
 
 export type EventCreateWithoutTicketsInput = {
-  id?: string
   title: string
   description?: string | null
   date: Date | string
@@ -779,7 +776,7 @@ export type EventCreateWithoutTicketsInput = {
 }
 
 export type EventUncheckedCreateWithoutTicketsInput = {
-  id?: string
+  id?: number
   title: string
   description?: string | null
   date: Date | string
@@ -788,7 +785,7 @@ export type EventUncheckedCreateWithoutTicketsInput = {
   soldCount?: number
   price: runtime.Decimal | runtime.DecimalJsLike | number | string
   externalId: string
-  organizerId: string
+  organizerId: number
   createdAt?: Date | string
   reservations?: Prisma.ReservationUncheckedCreateNestedManyWithoutEventInput
 }
@@ -810,7 +807,6 @@ export type EventUpdateToOneWithWhereWithoutTicketsInput = {
 }
 
 export type EventUpdateWithoutTicketsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -825,7 +821,7 @@ export type EventUpdateWithoutTicketsInput = {
 }
 
 export type EventUncheckedUpdateWithoutTicketsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
+  id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -834,13 +830,13 @@ export type EventUncheckedUpdateWithoutTicketsInput = {
   soldCount?: Prisma.IntFieldUpdateOperationsInput | number
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   externalId?: Prisma.StringFieldUpdateOperationsInput | string
-  organizerId?: Prisma.StringFieldUpdateOperationsInput | string
+  organizerId?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   reservations?: Prisma.ReservationUncheckedUpdateManyWithoutEventNestedInput
 }
 
 export type EventCreateManyOrganizerInput = {
-  id?: string
+  id?: number
   title: string
   description?: string | null
   date: Date | string
@@ -853,7 +849,6 @@ export type EventCreateManyOrganizerInput = {
 }
 
 export type EventUpdateWithoutOrganizerInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -868,7 +863,7 @@ export type EventUpdateWithoutOrganizerInput = {
 }
 
 export type EventUncheckedUpdateWithoutOrganizerInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
+  id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -883,7 +878,7 @@ export type EventUncheckedUpdateWithoutOrganizerInput = {
 }
 
 export type EventUncheckedUpdateManyWithoutOrganizerInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
+  id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1019,7 +1014,7 @@ export type $EventPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     tickets: Prisma.$TicketPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
-    id: string
+    id: number
     title: string
     description: string | null
     date: Date
@@ -1028,7 +1023,7 @@ export type $EventPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     soldCount: number
     price: runtime.Decimal
     externalId: string
-    organizerId: string
+    organizerId: number
     createdAt: Date
   }, ExtArgs["result"]["event"]>
   composites: {}
@@ -1456,7 +1451,7 @@ export interface Prisma__EventClient<T, Null = never, ExtArgs extends runtime.Ty
  * Fields of the Event model
  */
 export interface EventFieldRefs {
-  readonly id: Prisma.FieldRef<"Event", 'String'>
+  readonly id: Prisma.FieldRef<"Event", 'Int'>
   readonly title: Prisma.FieldRef<"Event", 'String'>
   readonly description: Prisma.FieldRef<"Event", 'String'>
   readonly date: Prisma.FieldRef<"Event", 'DateTime'>
@@ -1465,7 +1460,7 @@ export interface EventFieldRefs {
   readonly soldCount: Prisma.FieldRef<"Event", 'Int'>
   readonly price: Prisma.FieldRef<"Event", 'Decimal'>
   readonly externalId: Prisma.FieldRef<"Event", 'String'>
-  readonly organizerId: Prisma.FieldRef<"Event", 'String'>
+  readonly organizerId: Prisma.FieldRef<"Event", 'Int'>
   readonly createdAt: Prisma.FieldRef<"Event", 'DateTime'>
 }
     

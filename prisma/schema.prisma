@@ -30,8 +30,14 @@ enum TicketStatus {
   CANCELLED
 }
 
+enum ValidationResult {
+  VALID
+  INVALID
+  ALREADY_USED
+}
+
 model User {
-  id        String   @id @default(uuid())
+  id        Int      @id @default(autoincrement())
   username  String
   email     String   @unique
   password  String
@@ -48,18 +54,18 @@ model User {
 }
 
 model Session {
-  id        String   @id @default(uuid())
+  id        Int      @id @default(autoincrement())
   user      User     @relation(fields: [userId], references: [id])
   token     String
   createdAt DateTime @default(now())
 
-  userId String
+  userId Int
 
   @@map("sessions")
 }
 
 model Event {
-  id          String   @id @default(uuid())
+  id          Int      @id @default(autoincrement())
   title       String
   description String?
   date        DateTime
@@ -69,8 +75,8 @@ model Event {
   price       Decimal  @db.Decimal(10, 2)
   externalId  String
 
-  organizerId String
-  organizer   User   @relation("OrganizerEvents", fields: [organizerId], references: [id])
+  organizerId Int
+  organizer   User @relation("OrganizerEvents", fields: [organizerId], references: [id])
 
   reservations Reservation[]
   tickets      Ticket[]
@@ -81,9 +87,9 @@ model Event {
 }
 
 model Reservation {
-  id        String            @id @default(uuid())
-  userId    String
-  eventId   String
+  id        Int               @id @default(autoincrement())
+  userId    Int
+  eventId   Int
   quantity  Int
   status    ReservationStatus
   createdAt DateTime          @default(now())
@@ -97,8 +103,8 @@ model Reservation {
 }
 
 model Payment {
-  id            String        @id @default(uuid())
-  reservationId String        @unique
+  id            Int           @id @default(autoincrement())
+  reservationId Int           @unique
   status        PaymentStatus
   amount        Decimal       @db.Decimal(10, 2)
   createdAt     DateTime      @default(now())
@@ -109,10 +115,10 @@ model Payment {
 }
 
 model Ticket {
-  id            String       @id @default(uuid())
-  reservationId String
-  eventId       String
-  ownerId       String
+  id            Int          @id @default(autoincrement())
+  reservationId Int
+  eventId       Int
+  ownerId       Int
   code          String       @unique
   shareToken    String       @unique @default(uuid())
   status        TicketStatus @default(VALID)
@@ -129,11 +135,11 @@ model Ticket {
 }
 
 model TicketValidation {
-  id           String   @id @default(uuid())
-  ticketId     String
-  gatekeeperId String
-  result       String
-  createdAt    DateTime @default(now())
+  id           Int              @id @default(autoincrement())
+  ticketId     Int
+  gatekeeperId Int
+  result       ValidationResult
+  createdAt    DateTime         @default(now())
 
   ticket     Ticket @relation(fields: [ticketId], references: [id])
   gatekeeper User   @relation("GatekeeperValidations", fields: [gatekeeperId], references: [id])
