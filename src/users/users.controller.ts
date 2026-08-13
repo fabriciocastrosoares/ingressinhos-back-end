@@ -11,10 +11,4 @@ export class UsersController {
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
-
-  @UseGuards(AuthGuard)
-  @Get('me')
-  me(@User() user: any) {
-    return user;
-  }
 }

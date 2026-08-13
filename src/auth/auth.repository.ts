@@ -5,7 +5,7 @@ import { PrismaService } from '../Prisma/prisma.service';
 export class AuthRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async createSession(userId: string, token: string) {
+  async createSession(userId: number, token: string) {
     return this.prisma.session.create({
       data: {
         userId,

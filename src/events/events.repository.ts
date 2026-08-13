@@ -1,57 +1,81 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '../../generated/prisma/client';
+
 import { PrismaService } from '../Prisma/prisma.service';
-import { CreateEventDto } from './dto/create-event.dto';
 import { ReserveDto } from './dto/reserve.dto';
 
 @Injectable()
 export class EventsRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  create(data: any) {
-    const createData = {
-      title: data.title,
-      description: data.description,
-      date: data.date instanceof Date ? data.date : new Date(data.date),
-      location: data.location,
-      capacity: data.capacity,
-      price: data.price,
-      externalId: data.externalId || `event-${Date.now()}`,
-      organizerId: data.organizerId,
-    };
-    return this.prisma.event.create({ data: createData as any });
+  create(data: Prisma.EventUncheckedCreateInput) {
+    return this.prisma.event.create({
+      data,
+    });
   }
 
   findAll() {
-    return this.prisma.event.findMany();
+    return this.prisma.event.findMany({
+      orderBy: {
+        date: 'asc',
+      },
+    });
+  }
+
+  findOne(id: number) {
+    return this.prisma.event.findUnique({
+      where: { id },
+    });
   }
 
   findByExternalId(externalId: string) {
-    return this.prisma.event.findFirst({ where: { externalId } });
+    return this.prisma.event.findFirst({
+      where: {
+        externalId,
+      },
+    });
   }
 
-  findOne(id: string) {
-    return this.prisma.event.findUnique({ where: { id } });
+  findByExternalIds(externalIds: string[]) {
+    return this.prisma.event.findMany({
+      where: {
+        externalId: {
+          in: externalIds,
+        },
+      },
+    });
   }
 
   incrementSoldCount(
-    eventId: string,
+    eventId: number,
     quantity: number,
-    client: any = this.prisma,
+    client: Prisma.TransactionClient = this.prisma,
   ) {
     return client.event.update({
-      where: { id: eventId },
-      data: { soldCount: { increment: quantity } },
+      where: {
+        id: eventId,
+      },
+      data: {
+        soldCount: {
+          increment: quantity,
+        },
+      },
     });
   }
 
   createReservation(
-    userId: string,
-    eventId: string,
+    userId: number,
+    eventId: number,
     dto: ReserveDto,
-    client: any = this.prisma,
+    client: Prisma.TransactionClient = this.prisma,
   ) {
     return client.reservation.create({
-      data: { userId, eventId, quantity: dto.quantity, status: 'CONFIRMED' },
+      data: {
+        userId,
+        eventId,
+        quantity: dto.quantity,
+        status: 'CONFIRMED',
+      },
     });
   }
 }

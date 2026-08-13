@@ -30,12 +30,15 @@ export class UsersService {
     return await this.usersRepository.getUserByEmail(email);
   }
 
-  isMatchForPassword(user: { id: string | number; password: string }, password: string): boolean {
+  isMatchForPassword(
+    user: { id: number; password: string },
+    password: string,
+  ): boolean {
     const pass = this.bcrypt.isMatch(password, user.password);
     return pass;
   }
 
-  async getUserById(id: string) {
+  async getUserById(id: number) {
     const user = await this.usersRepository.getUserById(id);
     if (!user) throw new NotFoundException('User not found!');
     return user;

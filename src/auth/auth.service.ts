@@ -20,6 +20,9 @@ import { AuthRepository } from './auth.repository';
 
 @Injectable()
 export class AuthService {
+  private readonly AUDIENCE = 'users';
+  private readonly ISSUER = 'Fabricio';
+
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
@@ -40,26 +43,25 @@ export class AuthService {
 
     const result = this.createToken(user);
 
-    try {
-      await this.authRepository.createSession(String(user.id), result.token);
-    } catch (e) {
-      // ignore session save errors for now
-    }
+    await this.authRepository.createSession(Number(user.id), result.token);
 
     return result;
   }
 
-  createToken(user: { id: string | number; email: string }) {
-    const { id, email } = user;
-    const token = this.jwtService.sign({ email, sub: String(id) });
+  createToken(user: User) {
+    const token = this.jwtService.sign({
+      email: user.email,
+      sub: String(user.id),
+    });
+
     return { token };
   }
 
   checkToken(token: string): JwtPayload {
     try {
       const data = this.jwtService.verify(token, {
-        audience: 'users',
-        issuer: 'Fabricio',
+        audience: this.AUDIENCE,
+        issuer: this.ISSUER,
       });
       return data as JwtPayload;
     } catch (error) {

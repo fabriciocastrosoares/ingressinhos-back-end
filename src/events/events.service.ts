@@ -1,122 +1,165 @@
 import {
+  BadRequestException,
   Injectable,
   NotFoundException,
-  BadRequestException,
 } from '@nestjs/common';
-import { PrismaService } from '../Prisma/prisma.service';
-import { CreateEventDto } from './dto/create-event.dto';
 
-import { ReserveDto } from './dto/reserve.dto';
-
-import { ReservationStatus } from '../../generated/prisma/enums';
 import { Prisma } from '../../generated/prisma/client';
+
+import { PrismaService } from '../Prisma/prisma.service';
+import { TicketmasterService } from '../ticketsmaster/ticketsmaster.service';
+
 import { EventsRepository } from './events.repository';
+
+import { CreateEventDto } from './dto/create-event.dto';
+import { ReserveDto } from './dto/reserve.dto';
 
 @Injectable()
 export class EventsService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly repo: EventsRepository,
+    private readonly repository: EventsRepository,
+    private readonly ticketmaster: TicketmasterService,
   ) {}
 
-  async create(organizerId: string, data: CreateEventDto) {
-    const payload = {
-      title: data.title,
-      description: data.description,
-      date: new Date(data.date),
-      location: data.location,
-      capacity: data.capacity,
-      price: new Prisma.Decimal(data.price),
-      externalId: `event-${Date.now()}`,
+  async create(organizerId: number, dto: CreateEventDto) {
+    const ticketmasterEvent = await this.ticketmaster.findEventByExternalId(
+      dto.externalId,
+    );
+
+    if (!ticketmasterEvent) {
+      throw new NotFoundException('Event not found');
+    }
+
+    const venue = ticketmasterEvent._embedded?.venues?.[0];
+
+    const data = {
+      title: ticketmasterEvent.name,
+      description:
+        ticketmasterEvent.info ?? ticketmasterEvent.pleaseNote ?? null,
+      date: new Date(
+        ticketmasterEvent.dates.start.dateTime ??
+          ticketmasterEvent.dates.start.localDate,
+      ),
+      location: [venue?.name, venue?.city?.name, venue?.address?.line1]
+        .filter(Boolean)
+        .join(' - '),
+      capacity: dto.capacity,
+      price: new Prisma.Decimal(dto.price),
+      externalId: dto.externalId,
       organizerId,
-    } as any;
-    return this.repo.create(payload as CreateEventDto);
+    };
+
+    const result = await this.repository.create(data);
+
+    return result;
   }
 
   async findAll() {
-    const url =
-      'https://app.ticketmaster.com/discovery/v2/events.json?apikey=aFL3gFPY25AaXTXIqOe3RN9ini7gCeRu';
-
     try {
-      const res = await (globalThis as any).fetch(url);
-      if (!res.ok) throw new Error('Ticketmaster fetch failed');
-      const data = await res.json();
-      const events = data._embedded?.events ?? [];
+      const ticketmasterEvents = await this.ticketmaster.findEvents();
 
-      const normalized = await Promise.all(
-        events.map(async (e: any) => {
-          const venue = e._embedded?.venues?.[0] ?? {};
-          const date =
-            e.dates?.start?.dateTime ?? e.dates?.start?.localDate ?? null;
-          const priceRange = Array.isArray(e.priceRanges)
-            ? e.priceRanges[0]
-            : null;
-          const price = priceRange ? (priceRange.min ?? priceRange.max) : null;
-
-          const externalId = e.id;
-          const local = await this.repo.findByExternalId(externalId);
-
-          return {
-            id: local?.id ?? null,
-            title: e.name,
-            description: e.info ?? e.pleaseNote ?? null,
-            date,
-            location: [venue.name, venue.city?.name, venue.address?.line1]
-              .filter(Boolean)
-              .join(' - '),
-            capacity: local?.capacity ?? null,
-            soldCount: local?.soldCount ?? null,
-            price: local ? Number(local.price) : price,
-            externalId,
-            source: 'ticketmaster',
-            url: e.url,
-          };
-        }),
-      );
-
-      return normalized;
-    } catch (err) {
-      const locals = await this.repo.findAll();
-      return locals.map((l: any) => ({
-        id: l.id,
-        title: l.title,
-        description: l.description,
-        date: l.date instanceof Date ? l.date.toISOString() : l.date,
-        location: l.location,
-        capacity: l.capacity,
-        soldCount: l.soldCount,
-        price: Number(l.price),
-        externalId: l.externalId,
-        source: 'local',
-        url: null,
-      }));
+      return this.mergeEvents(ticketmasterEvents);
+    } catch {
+      return this.getLocalEvents();
     }
   }
 
-  async findOne(id: string) {
-    const event = await this.repo.findOne(id);
-    if (!event) throw new NotFoundException('Event not found');
+  async findOne(id: number) {
+    const event = await this.repository.findOne(id);
+
+    if (!event) {
+      throw new NotFoundException('Event not found');
+    }
+
     return event;
   }
 
-  async reserve(eventId: string, userId: string, dto: ReserveDto) {
-    const quantity = dto.quantity;
+  async reserve(eventId: number, userId: number, dto: ReserveDto) {
     return this.prisma.$transaction(async (tx) => {
-      const event = await tx.event.findUnique({ where: { id: eventId } });
-      if (!event) throw new NotFoundException('Event not found');
-      if (event.soldCount + quantity > event.capacity)
+      const event = await tx.event.findUnique({
+        where: { id: eventId },
+      });
+
+      if (!event) {
+        throw new NotFoundException('Event not found');
+      }
+
+      if (event.soldCount + dto.quantity > event.capacity) {
         throw new BadRequestException('Not enough available tickets');
+      }
 
-      await this.repo.incrementSoldCount(eventId, quantity, tx);
+      await this.repository.incrementSoldCount(eventId, dto.quantity, tx);
 
-      const reservation = await this.repo.createReservation(
-        userId,
-        eventId,
-        dto,
-        tx,
-      );
-
-      return reservation;
+      return this.repository.createReservation(userId, eventId, dto, tx);
     });
+  }
+
+  private async mergeEvents(ticketmasterEvents: any[]) {
+    const externalIds = ticketmasterEvents.map((event) => event.id);
+
+    const localEvents = await this.repository.findByExternalIds(externalIds);
+
+    const localEventsMap = new Map(
+      localEvents.map((event) => [event.externalId, event]),
+    );
+
+    return ticketmasterEvents.map((event) =>
+      this.normalizeEvent(event, localEventsMap.get(event.id)),
+    );
+  }
+
+  private normalizeEvent(event: any, localEvent?: any) {
+    const venue = event._embedded?.venues?.[0];
+
+    return {
+      id: localEvent?.id ?? null,
+
+      title: event.name,
+
+      description: event.info ?? event.pleaseNote ?? null,
+
+      date: event.dates?.start?.dateTime ?? event.dates?.start?.localDate,
+
+      location: [venue?.name, venue?.city?.name, venue?.address?.line1]
+        .filter(Boolean)
+        .join(' - '),
+
+      capacity: localEvent?.capacity ?? null,
+
+      soldCount: localEvent?.soldCount ?? null,
+
+      price: localEvent ? Number(localEvent.price) : this.getPrice(event),
+
+      externalId: event.id,
+
+      url: event.url,
+
+      source: localEvent ? 'local' : 'ticketmaster',
+    };
+  }
+
+  private getPrice(event: any) {
+    const range = event.priceRanges?.[0];
+
+    return range?.min ?? range?.max ?? null;
+  }
+
+  private async getLocalEvents() {
+    const events = await this.repository.findAll();
+
+    return events.map((event) => ({
+      id: event.id,
+      title: event.title,
+      description: event.description,
+      date: event.date,
+      location: event.location,
+      capacity: event.capacity,
+      soldCount: event.soldCount,
+      price: Number(event.price),
+      externalId: event.externalId,
+      source: 'local',
+      url: null,
+    }));
   }
 }

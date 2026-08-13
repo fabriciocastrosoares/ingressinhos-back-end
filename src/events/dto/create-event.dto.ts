@@ -1,33 +1,15 @@
-import {
-  IsString,
-  IsNotEmpty,
-  IsOptional,
-  IsInt,
-  Min,
-  IsNumber,
-} from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString, Min } from 'class-validator';
 
 export class CreateEventDto {
   @IsString()
   @IsNotEmpty()
-  title: string;
+  externalId: string;
 
-  @IsString()
-  @IsOptional()
-  description?: string;
-
-  @IsString()
-  @IsNotEmpty()
-  date: string; // ISO string
-
-  @IsString()
-  @IsNotEmpty()
-  location: string;
-
-  @IsInt()
+  @IsNumber()
   @Min(1)
   capacity: number;
 
   @IsNumber()
+  @Min(0)
   price: number;
 }

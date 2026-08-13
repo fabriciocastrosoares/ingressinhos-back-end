@@ -21,13 +21,20 @@ export class AuthGuard implements CanActivate {
       .getRequest<Request & { user?: any }>();
 
     const { authorization } = request.headers;
-    if (!authorization)
+
+    if (!authorization) {
       throw new UnauthorizedException('Authorization Header is missing');
+    }
+
     const token = authorization.split(' ')[1];
+
     try {
       const { sub } = this.authService.checkToken(token);
-      const user = await this.usersService.getUserById(sub);
+
+      const user = await this.usersService.getUserById(Number(sub));
+
       request.user = user;
+
       return true;
     } catch (error) {
       throw new UnauthorizedException();

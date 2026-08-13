@@ -1,21 +1,27 @@
 import { Module, forwardRef } from '@nestjs/common';
-import { TicketsModule } from '../tickets/tickets.module';
-import { EventsService } from './events.service';
-import { EventsController } from './events.controller';
+
 import { PrismaModule } from '../Prisma/prisma.module';
 import { AuthModule } from '../auth/auth.module';
-import { RolesGuard } from '../guards/roles.guard';
 import { UsersModule } from '../users/users.module';
+import { TicketsModule } from '../tickets/tickets.module';
+
+import { TicketmasterModule } from '../ticketsmaster/ticketmaster.module';
+
+import { EventsController } from './events.controller';
+import { EventsService } from './events.service';
 import { EventsRepository } from './events.repository';
+
+import { RolesGuard } from '../guards/roles.guard';
 
 @Module({
   imports: [
-    TicketsModule,
     PrismaModule,
+    TicketsModule,
+    TicketmasterModule,
     forwardRef(() => AuthModule),
     forwardRef(() => UsersModule),
   ],
-  providers: [EventsService, RolesGuard, EventsRepository],
   controllers: [EventsController],
+  providers: [EventsService, EventsRepository, RolesGuard],
 })
 export class EventsModule {}

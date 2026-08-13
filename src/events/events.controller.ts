@@ -1,20 +1,23 @@
 import {
-  Controller,
-  Post,
   Body,
-  UseGuards,
+  Controller,
   Get,
-  Param,
-  ParseUUIDPipe,
   HttpCode,
   HttpStatus,
+  Param,
+  ParseIntPipe,
+  Post,
   Req,
+  UseGuards,
 } from '@nestjs/common';
+
 import { EventsService } from './events.service';
-import { CreateEventDto } from './dto/create-event.dto';
+
 import { AuthGuard } from '../guards/auth.guards';
 import { RolesGuard } from '../guards/roles.guard';
 import { Roles } from '../common/roles.decorator';
+
+import { CreateEventDto } from './dto/create-event.dto';
 import { ReserveDto } from './dto/reserve.dto';
 
 @Controller('events')
@@ -22,12 +25,12 @@ export class EventsController {
   constructor(private readonly eventsService: EventsService) {}
 
   @Get()
-  async list() {
+  list() {
     return this.eventsService.findAll();
   }
 
   @Get(':id')
-  async get(@Param('id', ParseUUIDPipe) id: string) {
+  get(@Param('id', ParseIntPipe) id: number) {
     return this.eventsService.findOne(id);
   }
 
@@ -35,20 +38,18 @@ export class EventsController {
   @Roles('ORGANIZER')
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async create(@Body() dto: CreateEventDto, @Req() request: any) {
-    const organizerId = request.user?.id;
-    return this.eventsService.create(organizerId, dto);
+  create(@Body() dto: CreateEventDto, @Req() request: any) {
+    return this.eventsService.create(request.user.id, dto);
   }
 
+  @Post(':id/reserve')
   @UseGuards(AuthGuard, RolesGuard)
   @Roles('CLIENT')
-  @Post(':id/reserve')
-  async reserve(
-    @Param('id', ParseUUIDPipe) id: string,
+  reserve(
+    @Param('id', ParseIntPipe) id: number,
     @Body() dto: ReserveDto,
     @Req() request: any,
   ) {
-    const userId = request.user?.id;
-    return this.eventsService.reserve(id, userId, dto);
+    return this.eventsService.reserve(id, request.user.id, dto);
   }
 }
