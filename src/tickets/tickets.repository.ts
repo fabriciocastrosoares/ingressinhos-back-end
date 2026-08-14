@@ -84,4 +84,30 @@ export class TicketsRepository {
       data,
     });
   }
+
+  findByOwner(ownerId: number) {
+    return this.prisma.ticket.findMany({
+      where: {
+        ownerId,
+      },
+      include: {
+        event: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  }
+
+  findByShareToken(shareToken: string) {
+    return this.prisma.ticket.findUnique({
+      where: {
+        shareToken,
+      },
+      include: {
+        owner: true,
+        event: true,
+      },
+    });
+  }
 }

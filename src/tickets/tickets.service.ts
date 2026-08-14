@@ -80,4 +80,42 @@ export class TicketsService {
       event: ticket.event.title,
     };
   }
+
+  async findMyTickets(userId: number) {
+    const tickets = await this.repository.findByOwner(userId);
+
+    return tickets.map((ticket) => ({
+      id: ticket.id,
+      shareToken: ticket.shareToken,
+      status: ticket.status,
+      event: {
+        id: ticket.event.id,
+        title: ticket.event.title,
+        date: ticket.event.date,
+        location: ticket.event.location,
+      },
+    }));
+  }
+
+  async getByCode(code: string) {
+    const ticket = await this.repository.findByShareToken(code);
+
+    if (!ticket) {
+      throw new NotFoundException('Ticket not found');
+    }
+
+    return {
+      id: ticket.id,
+      code: ticket.code,
+      shareToken: ticket.shareToken,
+      status: ticket.status,
+      owner: ticket.owner.username,
+      event: {
+        id: ticket.event.id,
+        title: ticket.event.title,
+        date: ticket.event.date,
+        location: ticket.event.location,
+      },
+    };
+  }
 }

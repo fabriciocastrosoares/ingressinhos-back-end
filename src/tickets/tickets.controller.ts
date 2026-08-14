@@ -1,8 +1,10 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
+  Param,
   Post,
   Req,
   UseGuards,
@@ -25,6 +27,19 @@ export class TicketsController {
   @HttpCode(HttpStatus.CREATED)
   buy(@Req() request: any, @Body() dto: BuyTicketDto) {
     return this.service.buy(request.user.id, dto);
+  }
+
+  @Get('my')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('CLIENT')
+  findMyTickets(@Req() request: any) {
+    return this.service.findMyTickets(request.user.id);
+  }
+
+  @Get(':code')
+  @UseGuards(AuthGuard)
+  getTicket(@Param('code') code: string) {
+    return this.service.getByCode(code);
   }
 
   @Post('validate')
