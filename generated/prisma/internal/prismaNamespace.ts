@@ -1210,6 +1210,20 @@ export type ListEnumTicketStatusFieldRefInput<$PrismaModel> = FieldRefInputType<
 
 
 /**
+ * Reference to a field of type 'ValidationResult'
+ */
+export type EnumValidationResultFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ValidationResult'>
+    
+
+
+/**
+ * Reference to a field of type 'ValidationResult[]'
+ */
+export type ListEnumValidationResultFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ValidationResult[]'>
+    
+
+
+/**
  * Reference to a field of type 'Float'
  */
 export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>

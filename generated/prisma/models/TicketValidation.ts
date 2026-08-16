@@ -42,7 +42,7 @@ export type TicketValidationMinAggregateOutputType = {
   id: number | null
   ticketId: number | null
   gatekeeperId: number | null
-  result: string | null
+  result: $Enums.ValidationResult | null
   createdAt: Date | null
 }
 
@@ -50,7 +50,7 @@ export type TicketValidationMaxAggregateOutputType = {
   id: number | null
   ticketId: number | null
   gatekeeperId: number | null
-  result: string | null
+  result: $Enums.ValidationResult | null
   createdAt: Date | null
 }
 
@@ -191,7 +191,7 @@ export type TicketValidationGroupByOutputType = {
   id: number
   ticketId: number
   gatekeeperId: number
-  result: string
+  result: $Enums.ValidationResult
   createdAt: Date
   _count: TicketValidationCountAggregateOutputType | null
   _avg: TicketValidationAvgAggregateOutputType | null
@@ -222,7 +222,7 @@ export type TicketValidationWhereInput = {
   id?: Prisma.IntFilter<"TicketValidation"> | number
   ticketId?: Prisma.IntFilter<"TicketValidation"> | number
   gatekeeperId?: Prisma.IntFilter<"TicketValidation"> | number
-  result?: Prisma.StringFilter<"TicketValidation"> | string
+  result?: Prisma.EnumValidationResultFilter<"TicketValidation"> | $Enums.ValidationResult
   createdAt?: Prisma.DateTimeFilter<"TicketValidation"> | Date | string
   ticket?: Prisma.XOR<Prisma.TicketScalarRelationFilter, Prisma.TicketWhereInput>
   gatekeeper?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -245,7 +245,7 @@ export type TicketValidationWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.TicketValidationWhereInput | Prisma.TicketValidationWhereInput[]
   ticketId?: Prisma.IntFilter<"TicketValidation"> | number
   gatekeeperId?: Prisma.IntFilter<"TicketValidation"> | number
-  result?: Prisma.StringFilter<"TicketValidation"> | string
+  result?: Prisma.EnumValidationResultFilter<"TicketValidation"> | $Enums.ValidationResult
   createdAt?: Prisma.DateTimeFilter<"TicketValidation"> | Date | string
   ticket?: Prisma.XOR<Prisma.TicketScalarRelationFilter, Prisma.TicketWhereInput>
   gatekeeper?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -271,12 +271,12 @@ export type TicketValidationScalarWhereWithAggregatesInput = {
   id?: Prisma.IntWithAggregatesFilter<"TicketValidation"> | number
   ticketId?: Prisma.IntWithAggregatesFilter<"TicketValidation"> | number
   gatekeeperId?: Prisma.IntWithAggregatesFilter<"TicketValidation"> | number
-  result?: Prisma.StringWithAggregatesFilter<"TicketValidation"> | string
+  result?: Prisma.EnumValidationResultWithAggregatesFilter<"TicketValidation"> | $Enums.ValidationResult
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"TicketValidation"> | Date | string
 }
 
 export type TicketValidationCreateInput = {
-  result: string
+  result: $Enums.ValidationResult
   createdAt?: Date | string
   ticket: Prisma.TicketCreateNestedOneWithoutValidationsInput
   gatekeeper: Prisma.UserCreateNestedOneWithoutValidationsInput
@@ -286,12 +286,12 @@ export type TicketValidationUncheckedCreateInput = {
   id?: number
   ticketId: number
   gatekeeperId: number
-  result: string
+  result: $Enums.ValidationResult
   createdAt?: Date | string
 }
 
 export type TicketValidationUpdateInput = {
-  result?: Prisma.StringFieldUpdateOperationsInput | string
+  result?: Prisma.EnumValidationResultFieldUpdateOperationsInput | $Enums.ValidationResult
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ticket?: Prisma.TicketUpdateOneRequiredWithoutValidationsNestedInput
   gatekeeper?: Prisma.UserUpdateOneRequiredWithoutValidationsNestedInput
@@ -301,7 +301,7 @@ export type TicketValidationUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   ticketId?: Prisma.IntFieldUpdateOperationsInput | number
   gatekeeperId?: Prisma.IntFieldUpdateOperationsInput | number
-  result?: Prisma.StringFieldUpdateOperationsInput | string
+  result?: Prisma.EnumValidationResultFieldUpdateOperationsInput | $Enums.ValidationResult
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -309,12 +309,12 @@ export type TicketValidationCreateManyInput = {
   id?: number
   ticketId: number
   gatekeeperId: number
-  result: string
+  result: $Enums.ValidationResult
   createdAt?: Date | string
 }
 
 export type TicketValidationUpdateManyMutationInput = {
-  result?: Prisma.StringFieldUpdateOperationsInput | string
+  result?: Prisma.EnumValidationResultFieldUpdateOperationsInput | $Enums.ValidationResult
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -322,7 +322,7 @@ export type TicketValidationUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   ticketId?: Prisma.IntFieldUpdateOperationsInput | number
   gatekeeperId?: Prisma.IntFieldUpdateOperationsInput | number
-  result?: Prisma.StringFieldUpdateOperationsInput | string
+  result?: Prisma.EnumValidationResultFieldUpdateOperationsInput | $Enums.ValidationResult
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -456,8 +456,12 @@ export type TicketValidationUncheckedUpdateManyWithoutTicketNestedInput = {
   deleteMany?: Prisma.TicketValidationScalarWhereInput | Prisma.TicketValidationScalarWhereInput[]
 }
 
+export type EnumValidationResultFieldUpdateOperationsInput = {
+  set?: $Enums.ValidationResult
+}
+
 export type TicketValidationCreateWithoutGatekeeperInput = {
-  result: string
+  result: $Enums.ValidationResult
   createdAt?: Date | string
   ticket: Prisma.TicketCreateNestedOneWithoutValidationsInput
 }
@@ -465,7 +469,7 @@ export type TicketValidationCreateWithoutGatekeeperInput = {
 export type TicketValidationUncheckedCreateWithoutGatekeeperInput = {
   id?: number
   ticketId: number
-  result: string
+  result: $Enums.ValidationResult
   createdAt?: Date | string
 }
 
@@ -502,12 +506,12 @@ export type TicketValidationScalarWhereInput = {
   id?: Prisma.IntFilter<"TicketValidation"> | number
   ticketId?: Prisma.IntFilter<"TicketValidation"> | number
   gatekeeperId?: Prisma.IntFilter<"TicketValidation"> | number
-  result?: Prisma.StringFilter<"TicketValidation"> | string
+  result?: Prisma.EnumValidationResultFilter<"TicketValidation"> | $Enums.ValidationResult
   createdAt?: Prisma.DateTimeFilter<"TicketValidation"> | Date | string
 }
 
 export type TicketValidationCreateWithoutTicketInput = {
-  result: string
+  result: $Enums.ValidationResult
   createdAt?: Date | string
   gatekeeper: Prisma.UserCreateNestedOneWithoutValidationsInput
 }
@@ -515,7 +519,7 @@ export type TicketValidationCreateWithoutTicketInput = {
 export type TicketValidationUncheckedCreateWithoutTicketInput = {
   id?: number
   gatekeeperId: number
-  result: string
+  result: $Enums.ValidationResult
   createdAt?: Date | string
 }
 
@@ -548,12 +552,12 @@ export type TicketValidationUpdateManyWithWhereWithoutTicketInput = {
 export type TicketValidationCreateManyGatekeeperInput = {
   id?: number
   ticketId: number
-  result: string
+  result: $Enums.ValidationResult
   createdAt?: Date | string
 }
 
 export type TicketValidationUpdateWithoutGatekeeperInput = {
-  result?: Prisma.StringFieldUpdateOperationsInput | string
+  result?: Prisma.EnumValidationResultFieldUpdateOperationsInput | $Enums.ValidationResult
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ticket?: Prisma.TicketUpdateOneRequiredWithoutValidationsNestedInput
 }
@@ -561,26 +565,26 @@ export type TicketValidationUpdateWithoutGatekeeperInput = {
 export type TicketValidationUncheckedUpdateWithoutGatekeeperInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   ticketId?: Prisma.IntFieldUpdateOperationsInput | number
-  result?: Prisma.StringFieldUpdateOperationsInput | string
+  result?: Prisma.EnumValidationResultFieldUpdateOperationsInput | $Enums.ValidationResult
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type TicketValidationUncheckedUpdateManyWithoutGatekeeperInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   ticketId?: Prisma.IntFieldUpdateOperationsInput | number
-  result?: Prisma.StringFieldUpdateOperationsInput | string
+  result?: Prisma.EnumValidationResultFieldUpdateOperationsInput | $Enums.ValidationResult
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type TicketValidationCreateManyTicketInput = {
   id?: number
   gatekeeperId: number
-  result: string
+  result: $Enums.ValidationResult
   createdAt?: Date | string
 }
 
 export type TicketValidationUpdateWithoutTicketInput = {
-  result?: Prisma.StringFieldUpdateOperationsInput | string
+  result?: Prisma.EnumValidationResultFieldUpdateOperationsInput | $Enums.ValidationResult
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   gatekeeper?: Prisma.UserUpdateOneRequiredWithoutValidationsNestedInput
 }
@@ -588,14 +592,14 @@ export type TicketValidationUpdateWithoutTicketInput = {
 export type TicketValidationUncheckedUpdateWithoutTicketInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   gatekeeperId?: Prisma.IntFieldUpdateOperationsInput | number
-  result?: Prisma.StringFieldUpdateOperationsInput | string
+  result?: Prisma.EnumValidationResultFieldUpdateOperationsInput | $Enums.ValidationResult
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type TicketValidationUncheckedUpdateManyWithoutTicketInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   gatekeeperId?: Prisma.IntFieldUpdateOperationsInput | number
-  result?: Prisma.StringFieldUpdateOperationsInput | string
+  result?: Prisma.EnumValidationResultFieldUpdateOperationsInput | $Enums.ValidationResult
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -663,7 +667,7 @@ export type $TicketValidationPayload<ExtArgs extends runtime.Types.Extensions.In
     id: number
     ticketId: number
     gatekeeperId: number
-    result: string
+    result: $Enums.ValidationResult
     createdAt: Date
   }, ExtArgs["result"]["ticketValidation"]>
   composites: {}
@@ -1093,7 +1097,7 @@ export interface TicketValidationFieldRefs {
   readonly id: Prisma.FieldRef<"TicketValidation", 'Int'>
   readonly ticketId: Prisma.FieldRef<"TicketValidation", 'Int'>
   readonly gatekeeperId: Prisma.FieldRef<"TicketValidation", 'Int'>
-  readonly result: Prisma.FieldRef<"TicketValidation", 'String'>
+  readonly result: Prisma.FieldRef<"TicketValidation", 'ValidationResult'>
   readonly createdAt: Prisma.FieldRef<"TicketValidation", 'DateTime'>
 }
     

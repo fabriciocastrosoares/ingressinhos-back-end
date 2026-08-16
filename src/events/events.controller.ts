@@ -29,6 +29,13 @@ export class EventsController {
     return this.eventsService.findAll();
   }
 
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('ORGANIZER')
+  @Get('my')
+  myEvents(@Req() request: any) {
+    return this.eventsService.findMyEvents(request.user.id);
+  }
+
   @Get(':id')
   get(@Param('id', ParseIntPipe) id: number) {
     return this.eventsService.findOne(id);

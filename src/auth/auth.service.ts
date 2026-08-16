@@ -35,17 +35,40 @@ export class AuthService {
 
   async signIn(signInDto: SignInDto) {
     const { email, password } = signInDto;
+
     const user = await this.usersService.getUserByEmail(email);
-    if (!user) throw new UnauthorizedException('Email or password not valid.');
+
+    if (!user) {
+      throw new UnauthorizedException('Email or password not valid.');
+    }
 
     const valid = this.usersService.isMatchForPassword(user, password);
-    if (!valid) throw new UnauthorizedException('Email or password not valid.');
+
+    if (!valid) {
+      throw new UnauthorizedException('Email or password not valid.');
+    }
 
     const result = this.createToken(user);
 
     await this.authRepository.createSession(Number(user.id), result.token);
 
-    return result;
+    return {
+      token: result.token,
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+      },
+    };
+  }
+
+  async logout(token: string) {
+    await this.authRepository.deleteSession(token);
+
+    return {
+      message: 'Logout successful',
+    };
   }
 
   createToken(user: User) {

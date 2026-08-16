@@ -13,4 +13,20 @@ export class AuthRepository {
       },
     });
   }
+
+  async deleteSession(token: string) {
+    return this.prisma.session.deleteMany({
+      where: {
+        token,
+      },
+    });
+  }
+
+  async findSessionByToken(token: string) {
+    return this.prisma.session.findUnique({
+      where: {
+        token,
+      },
+    });
+  }
 }

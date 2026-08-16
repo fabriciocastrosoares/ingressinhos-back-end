@@ -22,9 +22,6 @@ export class TicketmasterService {
   async findEventByExternalId(externalId: string) {
     const events = await this.findEvents();
 
-    for (const event of events) {
-    }
-
     const event = events.find((e: any) => e.id === externalId);
 
     return event ?? null;

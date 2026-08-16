@@ -65,6 +65,15 @@ export class EventsService {
     }
   }
 
+  async findByOrganizer(organizerId: number) {
+    const events = await this.repository.findByOrganizerId(organizerId);
+
+    return events.map((event) => ({
+      ...event,
+      price: Number(event.price),
+    }));
+  }
+
   async findOne(id: number) {
     const event = await this.repository.findOne(id);
 
@@ -73,6 +82,23 @@ export class EventsService {
     }
 
     return event;
+  }
+
+  async findMyEvents(organizerId: number) {
+    const events = await this.repository.findByOrganizerId(organizerId);
+
+    return events.map((event) => ({
+      id: event.id,
+      title: event.title,
+      description: event.description,
+      date: event.date,
+      location: event.location,
+      capacity: event.capacity,
+      soldCount: event.soldCount,
+      price: Number(event.price),
+      externalId: event.externalId,
+      source: 'local',
+    }));
   }
 
   async reserve(eventId: number, userId: number, dto: ReserveDto) {

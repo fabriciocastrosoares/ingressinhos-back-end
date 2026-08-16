@@ -41,3 +41,12 @@ export const TicketStatus = {
 } as const
 
 export type TicketStatus = (typeof TicketStatus)[keyof typeof TicketStatus]
+
+
+export const ValidationResult = {
+  VALID: 'VALID',
+  INVALID: 'INVALID',
+  ALREADY_USED: 'ALREADY_USED'
+} as const
+
+export type ValidationResult = (typeof ValidationResult)[keyof typeof ValidationResult]

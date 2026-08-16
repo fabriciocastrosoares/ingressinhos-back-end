@@ -22,6 +22,17 @@ export class EventsRepository {
     });
   }
 
+  findByOrganizerId(organizerId: number) {
+    return this.prisma.event.findMany({
+      where: {
+        organizerId,
+      },
+      orderBy: {
+        date: 'asc',
+      },
+    });
+  }
+
   findOne(id: number) {
     return this.prisma.event.findUnique({
       where: { id },
