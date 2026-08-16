@@ -61,6 +61,10 @@ export class TicketsService {
       throw new NotFoundException('Ticket not found');
     }
 
+    if (ticket.eventId !== dto.eventId) {
+      throw new BadRequestException('Ticket does not belong to this event');
+    }
+
     if (ticket.status !== TicketStatus.VALID) {
       throw new BadRequestException('Ticket already used');
     }
@@ -95,6 +99,26 @@ export class TicketsService {
         location: ticket.event.location,
       },
     }));
+  }
+
+  async getPublicTicket(shareToken: string) {
+    const ticket = await this.repository.findTicketByShareToken(shareToken);
+
+    if (!ticket) {
+      throw new NotFoundException('Ticket not found');
+    }
+
+    return {
+      id: ticket.id,
+      status: ticket.status,
+
+      event: {
+        id: ticket.event.id,
+        title: ticket.event.title,
+        date: ticket.event.date,
+        location: ticket.event.location,
+      },
+    };
   }
 
   async getByCode(code: string) {

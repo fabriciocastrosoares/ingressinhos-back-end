@@ -36,6 +36,13 @@ export class EventsController {
     return this.eventsService.findMyEvents(request.user.id);
   }
 
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('GATEKEEPER')
+  @Get('gatekeeper')
+  listForGatekeeper() {
+    return this.eventsService.findAllLocal();
+  }
+
   @Get(':id')
   get(@Param('id', ParseIntPipe) id: number) {
     return this.eventsService.findOne(id);

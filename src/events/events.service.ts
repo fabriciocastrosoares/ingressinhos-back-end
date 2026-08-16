@@ -37,22 +37,23 @@ export class EventsService {
       title: ticketmasterEvent.name,
       description:
         ticketmasterEvent.info ?? ticketmasterEvent.pleaseNote ?? null,
+
       date: new Date(
         ticketmasterEvent.dates.start.dateTime ??
           ticketmasterEvent.dates.start.localDate,
       ),
+
       location: [venue?.name, venue?.city?.name, venue?.address?.line1]
         .filter(Boolean)
         .join(' - '),
+
       capacity: dto.capacity,
       price: new Prisma.Decimal(dto.price),
       externalId: dto.externalId,
       organizerId,
     };
 
-    const result = await this.repository.create(data);
-
-    return result;
+    return this.repository.create(data);
   }
 
   async findAll() {
@@ -65,23 +66,21 @@ export class EventsService {
     }
   }
 
-  async findByOrganizer(organizerId: number) {
-    const events = await this.repository.findByOrganizerId(organizerId);
+  async findAllLocal() {
+    const events = await this.repository.findAll();
 
     return events.map((event) => ({
-      ...event,
+      id: event.id,
+      title: event.title,
+      description: event.description,
+      date: event.date,
+      location: event.location,
+      capacity: event.capacity,
+      soldCount: event.soldCount,
       price: Number(event.price),
+      externalId: event.externalId,
+      source: 'local',
     }));
-  }
-
-  async findOne(id: number) {
-    const event = await this.repository.findOne(id);
-
-    if (!event) {
-      throw new NotFoundException('Event not found');
-    }
-
-    return event;
   }
 
   async findMyEvents(organizerId: number) {
@@ -101,10 +100,22 @@ export class EventsService {
     }));
   }
 
+  async findOne(id: number) {
+    const event = await this.repository.findOne(id);
+
+    if (!event) {
+      throw new NotFoundException('Event not found');
+    }
+
+    return event;
+  }
+
   async reserve(eventId: number, userId: number, dto: ReserveDto) {
     return this.prisma.$transaction(async (tx) => {
       const event = await tx.event.findUnique({
-        where: { id: eventId },
+        where: {
+          id: eventId,
+        },
       });
 
       if (!event) {

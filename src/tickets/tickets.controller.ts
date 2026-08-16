@@ -36,6 +36,11 @@ export class TicketsController {
     return this.service.findMyTickets(request.user.id);
   }
 
+  @Get('public/:shareToken')
+  getPublicTicket(@Param('shareToken') shareToken: string) {
+    return this.service.getPublicTicket(shareToken);
+  }
+
   @Get(':code')
   @UseGuards(AuthGuard)
   getTicket(@Param('code') code: string) {

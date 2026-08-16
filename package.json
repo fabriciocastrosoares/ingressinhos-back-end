@@ -18,8 +18,9 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:load-envs": "dotenv -e .env.test",
-    "test:prisma": "npm run test:load-envs prisma migrate deploy",
-    "test:e2e": "npm run test:load-envs -- jest -- --runInBand --config ./test/jest-e2e.json"
+    "test:db:create": "PGPASSWORD=1996 psql -U postgres -h localhost -d postgres -tc \"SELECT 1 FROM pg_database WHERE datname = 'ingressinho_back_end_test';\" | grep -q 1 || createdb -U postgres -h localhost ingressinho_back_end_test",
+    "test:prisma": "npm run test:load-envs -- prisma migrate deploy",
+    "test:e2e": "npm run test:db:create && npm run test:load-envs -- prisma migrate deploy && npm run test:load-envs -- jest -- --runInBand --config ./test/jest-e2e.json"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"

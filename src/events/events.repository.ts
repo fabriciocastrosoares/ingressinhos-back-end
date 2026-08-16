@@ -35,7 +35,9 @@ export class EventsRepository {
 
   findOne(id: number) {
     return this.prisma.event.findUnique({
-      where: { id },
+      where: {
+        id,
+      },
     });
   }
 
