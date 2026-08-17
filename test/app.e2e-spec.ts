@@ -16,8 +16,7 @@ describe('Ingressinho API (e2e)', () => {
     findEventByExternalId: jest.fn(),
   };
 
-  const uniqueEmail = (prefix: string) =>
-    `${prefix}.${Date.now()}.${Math.random().toString(36).slice(2)}@example.com`;
+  const uniqueEmail = (prefix: string) => `${prefix}@example.com`;
 
   const createUser = async (payload: {
     username: string;
