@@ -64,7 +64,7 @@ describe('TicketsController', () => {
 
     service.buy.mockResolvedValue(result);
 
-    const response = await controller.buy(request, dto as any);
+    const response = await controller.buy(request, dto);
 
     expect(service.buy).toHaveBeenCalledWith(1, dto);
     expect(response).toBe(result);
@@ -131,7 +131,7 @@ describe('TicketsController', () => {
 
     service.validate.mockResolvedValue(result);
 
-    const response = await controller.validate(request, dto as any);
+    const response = await controller.validate(request, dto);
 
     expect(service.validate).toHaveBeenCalledWith(30, dto);
     expect(response).toBe(result);

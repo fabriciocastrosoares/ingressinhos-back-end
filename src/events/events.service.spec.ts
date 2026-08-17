@@ -94,7 +94,7 @@ describe('EventsService', () => {
         externalId: 'external-1',
         capacity: 100,
         price: 50,
-      } as any);
+      });
 
       expect(repository.create).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -340,7 +340,7 @@ describe('EventsService', () => {
       repository.incrementSoldCount.mockResolvedValue({});
       repository.createReservation.mockResolvedValue(reservation);
 
-      const result = await service.reserve(1, 2, { quantity: 3 } as any);
+      const result = await service.reserve(1, 2, { quantity: 3 });
 
       expect(repository.incrementSoldCount).toHaveBeenCalledWith(1, 3, tx);
 

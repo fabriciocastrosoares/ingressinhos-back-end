@@ -47,7 +47,7 @@ describe('AuthController', () => {
         email: 'test@example.com',
         password: 'password',
         username: 'testuser',
-        role: 'CLIENT' as any,
+        role: 'CLIENT',
       };
 
       const result = { id: 1, ...signupDto };

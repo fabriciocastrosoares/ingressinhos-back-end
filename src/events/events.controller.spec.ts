@@ -113,7 +113,7 @@ describe('EventsController', () => {
 
     eventsService.create.mockResolvedValue(event);
 
-    const result = await controller.create(dto as any, request);
+    const result = await controller.create(dto, request);
 
     expect(eventsService.create).toHaveBeenCalledWith(10, dto);
     expect(result).toBe(event);
@@ -139,7 +139,7 @@ describe('EventsController', () => {
 
     eventsService.reserve.mockResolvedValue(reservation);
 
-    const result = await controller.reserve(5, dto as any, request);
+    const result = await controller.reserve(5, dto, request);
 
     expect(eventsService.reserve).toHaveBeenCalledWith(5, 20, dto);
     expect(result).toBe(reservation);

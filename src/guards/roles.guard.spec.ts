@@ -45,21 +45,15 @@ describe('RolesGuard', () => {
   });
 
   it('should throw when roles are required but the user is missing', () => {
-    reflector.getAllAndOverride = jest
-      .fn()
-      .mockReturnValue(['ORGANIZER']);
+    reflector.getAllAndOverride = jest.fn().mockReturnValue(['ORGANIZER']);
 
     const { context } = createContext();
 
-    expect(() => guard.canActivate(context)).toThrow(
-      ForbiddenException,
-    );
+    expect(() => guard.canActivate(context)).toThrow(ForbiddenException);
   });
 
   it('should allow a user whose role is required', () => {
-    reflector.getAllAndOverride = jest
-      .fn()
-      .mockReturnValue(['ORGANIZER']);
+    reflector.getAllAndOverride = jest.fn().mockReturnValue(['ORGANIZER']);
 
     const { context } = createContext({
       id: 1,
@@ -88,17 +82,13 @@ describe('RolesGuard', () => {
   });
 
   it('should throw when the user has insufficient role', () => {
-    reflector.getAllAndOverride = jest
-      .fn()
-      .mockReturnValue(['GATEKEEPER']);
+    reflector.getAllAndOverride = jest.fn().mockReturnValue(['GATEKEEPER']);
 
     const { context } = createContext({
       id: 1,
       role: 'CLIENT',
     });
 
-    expect(() => guard.canActivate(context)).toThrow(
-      ForbiddenException,
-    );
+    expect(() => guard.canActivate(context)).toThrow(ForbiddenException);
   });
 });
