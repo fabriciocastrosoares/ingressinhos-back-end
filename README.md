@@ -1,81 +1,271 @@
 # Ingressinho — Backend
 
-<p align="center">
-  <strong>API REST responsável pelo gerenciamento de usuários, eventos, reservas, ingressos e validação de entradas.</strong>
-</p>
+API REST desenvolvida com NestJS para gerenciamento de eventos, usuários, ingressos e validação de entrada.
 
-<p align="center">
-  <img src="https://img.shields.io/badge/NestJS-Backend-E0234E?style=for-the-badge&logo=nestjs&logoColor=white" />
-  <img src="https://img.shields.io/badge/TypeScript-Language-3178C6?style=for-the-badge&logo=typescript&logoColor=white" />
-  <img src="https://img.shields.io/badge/Prisma-ORM-2D3748?style=for-the-badge&logo=prisma&logoColor=white" />
-  <img src="https://img.shields.io/badge/PostgreSQL-Database-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" />
-  <img src="https://img.shields.io/badge/JWT-Authentication-black?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/Ticketmaster-Integration-026CDF?style=for-the-badge" />
-</p>
+O Ingressinho permite que diferentes perfis de usuários participem de todo o fluxo de um evento:
+
+- Cliente
+- Organizador
+- Porteiro
+
+O backend é responsável pelas regras de negócio, autenticação, autorização, persistência dos dados, integração com a Ticketmaster Discovery API, compra de ingressos e validação dos QR Codes.
 
 ---
 
 ## Sobre o projeto
 
-O **Ingressinho** é uma aplicação full stack para gerenciamento de eventos e ingressos.
+O Ingressinho foi desenvolvido como uma plataforma de gerenciamento de eventos e ingressos.
 
-Este repositório contém o **backend**, desenvolvido com NestJS, responsável por disponibilizar a API REST utilizada pelo frontend.
+O sistema permite:
 
-A API controla o fluxo completo da aplicação:
-
-```text
-Usuário
-   │
-   ▼
-Autenticação
-   │
-   ▼
-Perfil de acesso
-   │
-   ├───────────────┬────────────────┐
-   ▼               ▼                ▼
-CLIENT         ORGANIZER       GATEKEEPER
-   │               │                │
-   ▼               ▼                ▼
-Comprar        Criar eventos     Validar
-ingressos      e acompanhar      ingressos
-   │            vendas              │
-   ▼               │                ▼
-Ingressos         │             QR Code
-   │               │                │
-   └───────────────┴────────────────┘
-                   │
-                   ▼
-               PostgreSQL
-```
+- Criar contas de usuários.
+- Autenticar usuários.
+- Controlar acesso de acordo com o perfil.
+- Consultar eventos.
+- Integrar eventos externos da Ticketmaster.
+- Cadastrar eventos na plataforma.
+- Gerenciar eventos do organizador.
+- Reservar ingressos.
+- Comprar ingressos.
+- Gerar ingressos individuais.
+- Compartilhar ingressos através de um `shareToken`.
+- Validar ingressos através da portaria.
+- Impedir que um ingresso seja utilizado mais de uma vez.
+- Registrar o histórico das validações.
+- Consultar um ingresso publicamente.
 
 ---
 
 # Objetivo
 
-O backend foi desenvolvido para centralizar as regras de negócio do Ingressinho.
+O objetivo do projeto é implementar o fluxo completo de gerenciamento e utilização de ingressos.
 
-Entre suas responsabilidades estão:
+O fluxo principal da aplicação pode ser representado da seguinte maneira:
 
-- Cadastro e autenticação de usuários.
-- Controle de acesso por perfil.
-- Integração com a Ticketmaster Discovery API.
-- Cadastro de eventos.
-- Controle de capacidade.
-- Controle de ingressos vendidos.
-- Reservas.
-- Pagamentos.
-- Geração de ingressos.
-- Geração de identificadores para compartilhamento.
-- Consulta dos ingressos do cliente.
-- Validação de ingressos na portaria.
-- Registro das validações realizadas.
+```text
+                         Ticketmaster
+                              │
+                              ▼
+                    ┌──────────────────┐
+                    │   Organizador    │
+                    └────────┬─────────┘
+                             │
+                       seleciona evento
+                             │
+                             ▼
+                    ┌──────────────────┐
+                    │      Evento      │
+                    └────────┬─────────┘
+                             │
+                             ▼
+                    ┌──────────────────┐
+                    │     Cliente      │
+                    └────────┬─────────┘
+                             │
+                       compra ingresso
+                             │
+                             ▼
+                    ┌──────────────────┐
+                    │     Ingresso     │
+                    │     QR Code      │
+                    └────────┬─────────┘
+                             │
+                             ▼
+                    ┌──────────────────┐
+                    │     Porteiro     │
+                    └────────┬─────────┘
+                             │
+                      valida ingresso
+                             │
+                             ▼
+                    ┌──────────────────┐
+                    │ Entrada liberada │
+                    └──────────────────┘
+```
+
+---
+
+# Tecnologias utilizadas
+
+## Backend
+
+- **Node.js**
+- **TypeScript**
+- **NestJS**
+- **Prisma ORM**
+- **PostgreSQL**
+- **JWT**
+- **bcrypt**
+- **class-validator**
+- **class-transformer**
+- **Axios/fetch para integração externa**
+- **CORS**
+
+## Testes
+
+- **Jest**
+- **Supertest**
+- **NestJS Testing**
+- **Testes unitários**
+- **Testes E2E**
+- **Coverage**
+
+## Integração externa
+
+- **Ticketmaster Discovery API**
+
+---
+
+# Arquitetura
+
+A aplicação segue uma arquitetura modular baseada nos recursos do NestJS.
+
+O fluxo geral é:
+
+```text
+                HTTP Request
+                     │
+                     ▼
+              ┌─────────────┐
+              │ Controller  │
+              └──────┬──────┘
+                     │
+                     ▼
+                ┌─────────┐
+                │  Guard  │
+                └────┬────┘
+                     │
+                     ▼
+               ┌──────────┐
+               │ Service  │
+               └────┬─────┘
+                    │
+                    ▼
+             ┌──────────────┐
+             │  Repository  │
+             └───────┬──────┘
+                     │
+                     ▼
+                 ┌───────┐
+                 │Prisma │
+                 └───┬───┘
+                     │
+                     ▼
+                PostgreSQL
+```
+
+A separação entre Controller, Service e Repository permite manter:
+
+- Controllers responsáveis pelas requisições HTTP.
+- Guards responsáveis por autenticação e autorização.
+- Services responsáveis pelas regras de negócio.
+- Repositories responsáveis pelo acesso aos dados.
+- Prisma responsável pela comunicação com o PostgreSQL.
+
+---
+
+# Estrutura do projeto
+
+```text
+ingressinho-back-end/
+│
+├── prisma/
+│   ├── schema.prisma
+│   └── seed.ts
+│
+├── src/
+│   │
+│   ├── auth/
+│   │   ├── dto/
+│   │   │   ├── signin.dto.ts
+│   │   │   └── signup.dto.ts
+│   │   │
+│   │   ├── auth.controller.ts
+│   │   ├── auth.controller.spec.ts
+│   │   ├── auth.service.ts
+│   │   ├── auth.service.spec.ts
+│   │   ├── auth.repository.ts
+│   │   └── auth.module.ts
+│   │
+│   ├── users/
+│   │   ├── dto/
+│   │   │   └── create-user.dto.ts
+│   │   ├── users.controller.ts
+│   │   ├── users.controller.spec.ts
+│   │   ├── users.service.ts
+│   │   ├── users.service.spec.ts
+│   │   ├── users.repository.ts
+│   │   └── users.module.ts
+│   │
+│   ├── events/
+│   │   ├── dto/
+│   │   │   ├── create-event.dto.ts
+│   │   │   └── reserve.dto.ts
+│   │   ├── events.controller.ts
+│   │   ├── events.controller.spec.ts
+│   │   ├── events.service.ts
+│   │   ├── events.service.spec.ts
+│   │   ├── events.repository.ts
+│   │   └── events.module.ts
+│   │
+│   ├── tickets/
+│   │   ├── dto/
+│   │   │   ├── buy-ticket.dto.ts
+│   │   │   └── validate-ticket.dto.ts
+│   │   ├── tickets.controller.ts
+│   │   ├── tickets.controller.spec.ts
+│   │   ├── tickets.service.ts
+│   │   ├── tickets.service.spec.ts
+│   │   ├── tickets.repository.ts
+│   │   └── tickets.module.ts
+│   │
+│   ├── ticketsmaster/
+│   │   ├── ticketsmaster.service.ts
+│   │   ├── ticketsmaster.service.spec.ts
+│   │   └── ticketmaster.module.ts
+│   │
+│   ├── guards/
+│   │   ├── auth.guards.ts
+│   │   ├── auth.guards.spec.ts
+│   │   ├── roles.guard.ts
+│   │   └── roles.guard.spec.ts
+│   │
+│   ├── crypto/
+│   │   ├── bcrypt.service.ts
+│   │   ├── bcrypt.service.spec.ts
+│   │   └── crypto.module.ts
+│   │
+│   ├── common/
+│   │   └── roles.decorator.ts
+│   │
+│   ├── decorators/
+│   │   └── user.decorator.ts
+│   │
+│   ├── Prisma/
+│   │   ├── prisma.service.ts
+│   │   └── prisma.module.ts
+│   │
+│   ├── app.controller.ts
+│   ├── app.service.ts
+│   ├── app.module.ts
+│   └── main.ts
+│
+├── test/
+│   ├── app.e2e-spec.ts
+│   └── jest-e2e.json
+│
+├── .env.example
+├── prisma.config.ts
+├── package.json
+├── tsconfig.json
+└── README.md
+```
 
 ---
 
 # Perfis de usuário
 
-A aplicação trabalha com três papéis principais:
+O sistema possui três roles:
 
 ```text
 CLIENT
@@ -88,50 +278,83 @@ GATEKEEPER
 O cliente pode:
 
 - Consultar eventos.
+- Reservar ingressos.
 - Comprar ingressos.
-- Consultar seus próprios ingressos.
-- Compartilhar ingressos.
-- Apresentar o QR Code na entrada.
-
-As operações protegidas do cliente utilizam:
-
-```typescript
-@Roles('CLIENT')
-```
-
----
+- Consultar seus ingressos.
+- Compartilhar seus ingressos.
 
 ## ORGANIZER
 
 O organizador pode:
 
 - Consultar eventos disponíveis.
-- Escolher eventos da Ticketmaster.
-- Criar eventos no Ingressinho.
-- Definir capacidade.
-- Definir preço.
+- Cadastrar eventos.
 - Consultar seus próprios eventos.
+- Definir capacidade.
+- Definir preço dos ingressos.
 
-As operações protegidas do organizador utilizam:
+## GATEKEEPER
+
+O porteiro pode:
+
+- Consultar os eventos cadastrados localmente.
+- Validar ingressos.
+- Impedir a entrada de ingressos já utilizados.
+
+---
+
+# Autenticação
+
+A autenticação utiliza tokens JWT.
+
+Após o login, o backend retorna:
+
+```json
+{
+  "token": "jwt-token",
+  "user": {
+    "id": 1,
+    "username": "Usuario",
+    "email": "usuario@email.com",
+    "role": "CLIENT"
+  }
+}
+```
+
+Endpoints protegidos utilizam:
+
+```http
+Authorization: Bearer <token>
+```
+
+---
+
+# Autorização por roles
+
+A aplicação possui dois guards principais:
+
+```text
+AuthGuard
+RolesGuard
+```
+
+O `AuthGuard` verifica a autenticação do usuário.
+
+O `RolesGuard` verifica se o usuário possui a role necessária para executar determinada operação.
+
+As roles são definidas através do decorator:
+
+```typescript
+@Roles('CLIENT')
+```
+
+ou:
 
 ```typescript
 @Roles('ORGANIZER')
 ```
 
----
-
-## GATEKEEPER
-
-O porteiro é responsável pela entrada do evento.
-
-Pode:
-
-- Consultar eventos disponíveis para a portaria.
-- Selecionar eventos.
-- Validar ingressos.
-- Registrar a validação.
-
-As operações protegidas utilizam:
+ou:
 
 ```typescript
 @Roles('GATEKEEPER')
@@ -139,106 +362,259 @@ As operações protegidas utilizam:
 
 ---
 
-# Autenticação e autorização
-
-A API utiliza autenticação baseada em token.
-
-As rotas protegidas utilizam:
-
-```typescript
-@UseGuards(AuthGuard, RolesGuard)
-```
-
-O `AuthGuard` verifica a autenticação do usuário.
-
-O `RolesGuard` verifica se o usuário possui o papel necessário.
-
-Exemplo:
-
-```typescript
-@Post('buy')
-@UseGuards(AuthGuard, RolesGuard)
-@Roles('CLIENT')
-buy(@Req() request: any, @Body() dto: BuyTicketDto) {
-  return this.service.buy(request.user.id, dto);
-}
-```
-
-Nesse fluxo:
+# Fluxo de autenticação
 
 ```text
-Request
+Cliente
+   │
+   │ POST /auth/sign-in
+   ▼
+AuthController
    │
    ▼
-AuthGuard
+AuthService
+   │
+   ├── busca usuário
+   ├── compara senha
+   └── cria sessão/token
    │
    ▼
-Usuário autenticado?
+JWT
    │
    ▼
-RolesGuard
-   │
-   ▼
-Possui CLIENT?
-   │
-   ▼
-Controller
-   │
-   ▼
-Service
+Frontend
 ```
 
 ---
 
-# Guards e Roles
+# Logout
 
-O projeto utiliza uma estrutura baseada em guards.
+O logout utiliza:
 
-Principais elementos:
-
-```text
-guards/
-├── auth.guards.ts
-└── roles.guard.ts
+```http
+POST /auth/logout
 ```
 
-E o decorator:
+com:
 
-```text
-common/
-└── roles.decorator.ts
+```http
+Authorization: Bearer <token>
 ```
 
-Exemplo:
+O backend remove a sessão correspondente ao token.
 
-```typescript
-@UseGuards(AuthGuard, RolesGuard)
-@Roles('GATEKEEPER')
-```
-
-Isso evita que um cliente execute operações exclusivas da portaria.
+Isso significa que o token também possui controle através da tabela de sessões no banco.
 
 ---
 
-# Módulo de ingressos
+# Senhas
 
-O módulo de tickets concentra a lógica relacionada aos ingressos.
+As senhas dos usuários não são armazenadas diretamente.
 
-Estrutura:
+O projeto utiliza:
 
 ```text
-tickets/
-├── tickets.controller.ts
-├── tickets.service.ts
-├── tickets.repository.ts
-└── dto/
-    ├── buy-ticket.dto.ts
-    └── validate-ticket.dto.ts
+bcrypt
+```
+
+para realizar o hash das senhas.
+
+O fluxo é:
+
+```text
+Senha
+  │
+  ▼
+bcrypt
+  │
+  ▼
+Hash
+  │
+  ▼
+PostgreSQL
+```
+
+Durante o login:
+
+```text
+Senha informada
+      │
+      ▼
+bcrypt.compare()
+      │
+      ├── correta ──► login
+      │
+      └── incorreta ─► 401 Unauthorized
 ```
 
 ---
 
-## 🛒 Compra de ingresso
+# Eventos
+
+O módulo de eventos é responsável pelo gerenciamento dos eventos.
+
+Principais funcionalidades:
+
+- Listagem.
+- Busca individual.
+- Criação.
+- Eventos do organizador.
+- Eventos da portaria.
+- Reserva.
+- Integração com Ticketmaster.
+
+---
+
+# Integração com Ticketmaster
+
+O backend possui um `TicketmasterService`.
+
+O serviço consulta a Ticketmaster Discovery API para obter eventos externos.
+
+O organizador pode visualizar esses eventos e escolher quais deseja cadastrar no Ingressinho.
+
+O identificador externo é armazenado no campo:
+
+```text
+externalId
+```
+
+---
+
+# External ID
+
+O `externalId` relaciona o evento local ao evento externo da Ticketmaster.
+
+Durante a criação:
+
+```text
+externalId
+    │
+    ▼
+TicketmasterService
+    │
+    ▼
+Busca evento externo
+    │
+    ├── encontrado ──► cria evento local
+    │
+    └── não encontrado ► 404
+```
+
+As informações utilizadas para criar o evento incluem:
+
+- Nome.
+- Descrição.
+- Data.
+- Local.
+- Capacidade.
+- Preço.
+- `externalId`.
+- Organizador.
+
+---
+
+# Fallback da Ticketmaster
+
+A listagem de eventos possui um mecanismo de fallback.
+
+Fluxo:
+
+```text
+GET /events
+      │
+      ▼
+Ticketmaster
+      │
+      ├── sucesso
+      │      │
+      │      ▼
+      │   Eventos externos
+      │      +
+      │   Eventos locais
+      │
+      └── erro
+             │
+             ▼
+        Eventos locais
+```
+
+Isso permite que a aplicação continue disponibilizando os eventos locais mesmo quando a API externa estiver indisponível.
+
+---
+
+# Ingressos
+
+O módulo de tickets é responsável por:
+
+- Compra.
+- Consulta de ingressos.
+- Consulta pública.
+- Validação.
+- Controle de status.
+
+Cada ingresso possui:
+
+```text
+id
+code
+shareToken
+status
+eventId
+ownerId
+reservationId
+```
+
+---
+
+# QR Code
+
+O backend gera um `shareToken` único para cada ingresso.
+
+Esse token é utilizado pelo frontend para:
+
+- Gerar o QR Code.
+- Criar o link público do ingresso.
+- Enviar o ingresso para validação.
+
+O frontend utiliza uma rota pública:
+
+```text
+/ticket/:shareToken
+```
+
+Essa rota pertence ao frontend.
+
+O frontend consulta o backend através de:
+
+```http
+GET /tickets/public/:shareToken
+```
+
+Fluxo:
+
+```text
+Ingresso
+   │
+   ▼
+shareToken
+   │
+   ├───────────────┐
+   │               │
+   ▼               ▼
+QR Code       Link público
+   │               │
+   ▼               ▼
+Portaria      Frontend
+   │               │
+   └───────┬───────┘
+           ▼
+      Ingressinho API
+```
+
+---
+
+# Compra de ingressos
 
 A compra é realizada através de:
 
@@ -246,17 +622,18 @@ A compra é realizada através de:
 POST /tickets/buy
 ```
 
-Somente usuários `CLIENT` podem utilizar essa operação.
+Somente usuários `CLIENT` podem executar essa operação.
 
-O controller recebe:
+O payload possui:
 
-```typescript
+```json
 {
-  (eventId, quantity);
+  "eventId": 1,
+  "quantity": 2
 }
 ```
 
-O service executa o fluxo:
+O fluxo implementado é:
 
 ```text
 Cliente
@@ -268,108 +645,109 @@ POST /tickets/buy
 Busca evento
    │
    ▼
-Verifica existência
+Atualiza soldCount
    │
    ▼
-Atualiza ingressos vendidos
+Cria Reservation
    │
    ▼
-Cria reserva
+Cria Payment
    │
    ▼
-Cria pagamento
+Cria Ticket(s)
    │
    ▼
-Cria ingressos
-   │
-   ▼
-Retorna reserva
-```
-
-Para cada unidade comprada, um ticket é criado.
-
-O código do ticket é gerado através de:
-
-```typescript
-randomUUID();
+Retorna reserva e ingressos
 ```
 
 ---
 
-# Ticket
+# Pagamento
 
-Cada ingresso possui informações relacionadas a:
+O banco possui uma entidade `Payment`.
 
-- Reserva.
-- Evento.
-- Proprietário.
-- Código.
-- `shareToken`.
-- Status.
-- Data de criação.
+Durante a compra, o backend registra o pagamento como:
 
-O status utilizado na validação inclui:
+```text
+APPROVED
+```
+
+O projeto atualmente representa o pagamento aprovado dentro do próprio fluxo da aplicação.
+
+Não existe, no código atual, integração com um gateway externo de pagamentos.
+
+Uma integração real com serviços como gateways de cartão, Pix ou outros meios de pagamento pode ser adicionada futuramente.
+
+---
+
+# Reservation
+
+Cada compra gera uma reserva.
+
+A reserva possui:
+
+```text
+userId
+eventId
+quantity
+status
+```
+
+O status atualmente pode ser:
+
+```text
+CONFIRMED
+CANCELLED
+```
+
+---
+
+# Status do ingresso
+
+Os ingressos possuem três estados:
 
 ```text
 VALID
 USED
+CANCELLED
 ```
 
-O ingresso começa válido e, quando utilizado, passa para:
+Um ingresso recém-criado começa como:
 
 ```text
+VALID
+```
+
+Após ser validado na portaria:
+
+```text
+VALID
+  │
+  ▼
 USED
 ```
 
 ---
 
-# 🔗 Share Token
+# Validação na portaria
 
-O `shareToken` é utilizado para identificar o ingresso no fluxo de compartilhamento e validação.
-
-O frontend utiliza esse valor para:
-
-- Gerar o QR Code.
-- Criar o link público do ingresso.
-- Enviar o ingresso para validação.
-
-Exemplo de rota pública utilizada pelo frontend:
-
-```text
-/ticket/:shareToken
-```
-
----
-
-# Validação do ingresso
-
-A portaria utiliza:
+A validação é realizada através de:
 
 ```http
 POST /tickets/validate
 ```
 
-Apenas usuários `GATEKEEPER` podem executar essa operação.
+Somente usuários `GATEKEEPER` podem executar essa operação.
 
 O DTO recebe:
 
-```typescript
+```json
 {
-  shareToken;
+  "shareToken": "token-do-ingresso"
 }
 ```
 
-O service:
-
-1. Procura o ingresso pelo `shareToken`.
-2. Verifica se o ingresso existe.
-3. Verifica o status.
-4. Impede a reutilização de ingressos.
-5. Atualiza o status para `USED`.
-6. Cria um registro de validação.
-7. Retorna os dados necessários para a portaria.
-
-Fluxo:
+O fluxo é:
 
 ```text
 QR Code
@@ -386,12 +764,12 @@ Busca ingresso
    ├── não encontrado ──► erro
    │
    ▼
-Status = VALID?
+Verifica status
    │
-   ├── não ─────────────► ingresso já utilizado
+   ├── USED/CANCELLED ──► ingresso recusado
    │
    ▼
-Status = USED
+Atualiza para USED
    │
    ▼
 Cria TicketValidation
@@ -404,262 +782,50 @@ Ingresso validado
 
 # Prevenção de reutilização
 
-Um dos pontos importantes do sistema é impedir que o mesmo ingresso seja utilizado duas vezes.
+Um dos principais requisitos do sistema é impedir que o mesmo ingresso seja utilizado duas vezes.
 
-A validação verifica:
-
-```typescript
-if (ticket.status !== TicketStatus.VALID) {
-  throw new BadRequestException('Ticket already used');
-}
-```
-
-Quando a validação é aprovada:
-
-```typescript
-await this.repository.updateTicketStatus(ticket.id, TicketStatus.USED);
-```
-
-Assim, uma segunda tentativa de entrada é recusada.
-
----
-
-# Registro de validações
-
-Após uma validação bem-sucedida, o sistema registra:
-
-```typescript
-await this.repository.createValidation({
-  ticketId: ticket.id,
-  gatekeeperId,
-  result: 'VALID',
-});
-```
-
-Isso permite manter o histórico de validações dos ingressos.
-
----
-
-# Módulo de eventos
-
-O módulo de eventos é responsável por:
-
-- Listagem de eventos.
-- Consulta individual.
-- Integração com Ticketmaster.
-- Criação de eventos.
-- Eventos do organizador.
-- Eventos disponíveis para a portaria.
-- Reservas.
-
-Estrutura:
+A validação verifica se o ingresso ainda possui status:
 
 ```text
-events/
-├── events.controller.ts
-├── events.service.ts
-├── events.repository.ts
-└── dto/
-    ├── create-event.dto.ts
-    └── reserve.dto.ts
+VALID
 ```
+
+Depois da validação:
+
+```text
+VALID → USED
+```
+
+Uma nova tentativa encontra:
+
+```text
+USED
+```
+
+e é recusada.
+
+Isso evita que um mesmo QR Code seja apresentado novamente para liberar outra entrada.
 
 ---
 
-# Eventos da Ticketmaster
+# Histórico de validações
 
-O projeto possui integração com a **Ticketmaster Discovery API**.
-
-O backend utiliza:
+Cada validação bem-sucedida gera um registro na tabela:
 
 ```text
-TicketmasterService
+TicketValidation
 ```
 
-para buscar eventos externos.
-
-O organizador pode escolher um evento da Ticketmaster e cadastrá-lo localmente.
-
----
-
-# External ID
-
-Os eventos externos possuem um identificador:
+O registro contém:
 
 ```text
-externalId
+ticketId
+gatekeeperId
+result
+createdAt
 ```
 
-Esse valor permite relacionar o evento do Ingressinho ao evento existente na Ticketmaster.
-
-Durante a criação:
-
-```typescript
-const ticketmasterEvent = await this.ticketmaster.findEventByExternalId(
-  dto.externalId,
-);
-```
-
-O backend consulta a Ticketmaster antes de criar o evento local.
-
-Se o evento não for encontrado:
-
-```text
-404 Event not found
-```
-
----
-
-# Criação de eventos
-
-A criação é realizada por:
-
-```http
-POST /events
-```
-
-Somente organizadores podem executar essa operação.
-
-O DTO informa:
-
-```typescript
-{
-  (externalId, capacity, price);
-}
-```
-
-O backend busca as informações do evento na Ticketmaster e monta o registro local.
-
-Informações utilizadas incluem:
-
-- Nome.
-- Descrição.
-- Data.
-- Local.
-- Capacidade.
-- Preço.
-- `externalId`.
-- Organizador.
-
----
-
-# Listagem de eventos
-
-A rota:
-
-```http
-GET /events
-```
-
-busca eventos disponíveis.
-
-O service tenta consultar a Ticketmaster.
-
-Caso a consulta externa falhe, existe fallback para os eventos armazenados localmente.
-
-Fluxo:
-
-```text
-GET /events
-      │
-      ▼
-Ticketmaster
-      │
-      ├── sucesso ──► merge com eventos locais
-      │
-      └── erro ─────► eventos locais
-```
-
----
-
-# Eventos da portaria
-
-A portaria utiliza:
-
-```http
-GET /events/gatekeeper
-```
-
-Essa rota exige:
-
-```text
-GATEKEEPER
-```
-
-O backend retorna os eventos armazenados localmente.
-
-Isso é importante porque somente eventos cadastrados no Ingressinho podem possuir ingressos locais para validação.
-
----
-
-# Eventos do organizador
-
-O organizador utiliza:
-
-```http
-GET /events/my
-```
-
-A API identifica o usuário através do token:
-
-```typescript
-request.user.id;
-```
-
-e retorna somente os eventos pertencentes àquele organizador.
-
----
-
-# Reservas e pagamentos
-
-O projeto possui entidades relacionadas a:
-
-```text
-Reservation
-Payment
-Ticket
-Event
-```
-
-Durante uma compra, o fluxo implementado no módulo de tickets cria:
-
-```text
-Reservation
-     │
-     ▼
-Payment
-     │
-     ▼
-Tickets
-```
-
-O pagamento é registrado com:
-
-```text
-PaymentStatus.APPROVED
-```
-
-A implementação atual representa o pagamento aprovado dentro do fluxo da aplicação.
-
-Uma integração com um gateway de pagamento real pode ser adicionada futuramente.
-
----
-
-# Transações
-
-O módulo de eventos utiliza transações do Prisma para operações de reserva.
-
-Exemplo:
-
-```typescript
-return this.prisma.$transaction(async (tx) => {
-  ...
-});
-```
-
-Dentro da transação são realizados os passos relacionados à reserva.
-
-Isso ajuda a manter a consistência dos dados durante operações que alteram mais de uma informação.
+Isso permite manter um histórico de quem validou determinado ingresso e quando a validação ocorreu.
 
 ---
 
@@ -677,110 +843,290 @@ com:
 Prisma ORM
 ```
 
-O Prisma é responsável pelo acesso ao banco e pelas operações de persistência.
-
-A aplicação utiliza um `PrismaService` centralizado.
-
-Estrutura:
+O schema possui as seguintes entidades principais:
 
 ```text
-src/
-└── Prisma/
-    └── prisma.service.ts
+User
+   │
+   ├── Session
+   ├── Event
+   ├── Reservation
+   ├── Ticket
+   └── TicketValidation
+
+Event
+   │
+   ├── Reservation
+   └── Ticket
+
+Reservation
+   │
+   ├── Payment
+   └── Ticket
+
+Ticket
+   │
+   └── TicketValidation
 ```
 
 ---
 
-# Prisma
+# Modelos do Prisma
 
-O projeto possui o schema do Prisma e um cliente gerado.
+## User
 
-A estrutura utilizada inclui modelos relacionados ao fluxo principal:
+Representa os usuários da plataforma.
+
+Principais campos:
 
 ```text
-User
-Event
-Reservation
-Payment
-Ticket
-TicketValidation
+id
+username
+email
+password
+role
+createdAt
 ```
 
-O cliente Prisma é utilizado pelos repositories.
+---
+
+## Session
+
+Representa as sessões autenticadas.
+
+```text
+id
+userId
+token
+createdAt
+```
+
+O token é único.
+
+---
+
+## Event
+
+Representa os eventos cadastrados.
+
+```text
+id
+title
+description
+date
+location
+capacity
+soldCount
+price
+externalId
+organizerId
+createdAt
+```
+
+---
+
+## Reservation
+
+Representa uma reserva/compra.
+
+```text
+id
+userId
+eventId
+quantity
+status
+createdAt
+```
+
+---
+
+## Payment
+
+Representa o pagamento associado à reserva.
+
+```text
+id
+reservationId
+status
+amount
+createdAt
+```
+
+---
+
+## Ticket
+
+Representa um ingresso individual.
+
+```text
+id
+reservationId
+eventId
+ownerId
+code
+shareToken
+status
+createdAt
+```
+
+O `shareToken` é único e utilizado no fluxo de QR Code e compartilhamento.
+
+---
+
+## TicketValidation
+
+Registra a validação de um ingresso.
+
+```text
+id
+ticketId
+gatekeeperId
+result
+createdAt
+```
+
+---
+
+# Transações
+
+O módulo de eventos utiliza transações do Prisma em operações que alteram múltiplos dados.
 
 Exemplo:
 
 ```typescript
-this.prisma.event.findUnique({
-  where: { id },
+this.prisma.$transaction(async (tx) => {
+  // operações relacionadas à reserva
 });
 ```
+
+Isso ajuda a manter a consistência das operações de reserva.
 
 ---
 
 # Repository Pattern
 
-A aplicação separa as regras de negócio do acesso ao banco.
+O projeto utiliza repositories para separar acesso ao banco das regras de negócio.
 
 Exemplo:
 
 ```text
-Controller
-    │
-    ▼
-Service
-    │
-    ▼
-Repository
-    │
-    ▼
-Prisma
-    │
-    ▼
+EventsService
+      │
+      ▼
+EventsRepository
+      │
+      ▼
+PrismaService
+      │
+      ▼
 PostgreSQL
 ```
 
-Isso é aplicado, por exemplo, em:
-
-```text
-EventsRepository
-TicketsRepository
-```
-
-O repository concentra operações como:
-
-- Buscar eventos.
-- Criar eventos.
-- Atualizar quantidade vendida.
-- Criar reservas.
-- Criar pagamentos.
-- Criar ingressos.
-- Buscar tickets.
-- Atualizar status.
-- Criar validações.
+O mesmo padrão é utilizado no módulo de tickets e demais recursos que possuem persistência.
 
 ---
 
 # DTOs
 
-Os DTOs são utilizados para validar e organizar os dados recebidos pela API.
-
-Exemplos:
+Os DTOs definem os dados esperados pela API e são utilizados em conjunto com:
 
 ```text
+class-validator
+class-transformer
+```
+
+Principais DTOs:
+
+```text
+CreateUserDto
+SignupDto
+SigninDto
 CreateEventDto
 ReserveDto
 BuyTicketDto
 ValidateTicketDto
 ```
 
-Eles ajudam a manter contratos claros entre frontend e backend.
+A aplicação utiliza validação global para impedir dados inválidos ou campos não permitidos.
+
+---
+
+# ValidationPipe
+
+A aplicação utiliza:
+
+```typescript
+ValidationPipe({
+  whitelist: true,
+  transform: true,
+  forbidNonWhitelisted: true,
+});
+```
+
+Isso permite:
+
+- Validar os DTOs.
+- Remover propriedades não esperadas.
+- Transformar tipos quando necessário.
+- Rejeitar propriedades não permitidas.
+
+---
+
+# CORS
+
+O backend está configurado para aceitar requisições do frontend em desenvolvimento:
+
+```text
+http://localhost:5173
+```
+
+Também são permitidos os principais métodos HTTP utilizados pela aplicação.
+
+O header:
+
+```text
+Authorization
+```
+
+é permitido para autenticação através do JWT.
 
 ---
 
 # Principais endpoints
 
-## Eventos
+## Auth
+
+### Cadastro
+
+```http
+POST /auth/sign-up
+```
+
+### Login
+
+```http
+POST /auth/sign-in
+```
+
+### Logout
+
+```http
+POST /auth/logout
+```
+
+---
+
+# Usuários
+
+### Criar usuário
+
+```http
+POST /users
+```
+
+---
+
+# Eventos
 
 ### Listar eventos
 
@@ -788,22 +1134,22 @@ Eles ajudam a manter contratos claros entre frontend e backend.
 GET /events
 ```
 
-### Listar eventos do organizador
+### Buscar evento
+
+```http
+GET /events/:id
+```
+
+### Eventos do organizador
 
 ```http
 GET /events/my
 ```
 
-### Listar eventos da portaria
+### Eventos da portaria
 
 ```http
 GET /events/gatekeeper
-```
-
-### Buscar evento
-
-```http
-GET /events/:id
 ```
 
 ### Criar evento
@@ -820,7 +1166,7 @@ POST /events/:id/reserve
 
 ---
 
-## Ingressos
+# Tickets
 
 ### Comprar ingresso
 
@@ -828,16 +1174,22 @@ POST /events/:id/reserve
 POST /tickets/buy
 ```
 
-### Meus ingressos
+### Listar meus ingressos
 
 ```http
 GET /tickets/my
 ```
 
-### Buscar ingresso por código
+### Buscar ingresso autenticado
 
 ```http
 GET /tickets/:code
+```
+
+### Consultar ingresso publicamente
+
+```http
+GET /tickets/public/:shareToken
 ```
 
 ### Validar ingresso
@@ -848,271 +1200,325 @@ POST /tickets/validate
 
 ---
 
-# Matriz de acesso
+# ⚙️ Pré-requisitos
 
-| Endpoint                   |   CLIENT    |  ORGANIZER  | GATEKEEPER  |
-| -------------------------- | :---------: | :---------: | :---------: |
-| `GET /events`              |     ✅      |     ✅      |     ✅      |
-| `GET /events/my`           |     ❌      |     ✅      |     ❌      |
-| `GET /events/gatekeeper`   |     ❌      |     ❌      |     ✅      |
-| `GET /events/:id`          |   Público   |   Público   |   Público   |
-| `POST /events`             |     ❌      |     ✅      |     ❌      |
-| `POST /events/:id/reserve` |     ✅      |     ❌      |     ❌      |
-| `POST /tickets/buy`        |     ✅      |     ❌      |     ❌      |
-| `GET /tickets/my`          |     ✅      |     ❌      |     ❌      |
-| `GET /tickets/:code`       | Autenticado | Autenticado | Autenticado |
-| `POST /tickets/validate`   |     ❌      |     ❌      |     ✅      |
+Para executar o projeto localmente, é necessário ter instalado:
 
----
-
-# Estrutura do backend
-
-A estrutura geral do projeto segue uma organização modular do NestJS:
-
-```text
-src/
-│
-├── auth/
-│
-├── users/
-│
-├── events/
-│   ├── dto/
-│   │   ├── create-event.dto.ts
-│   │   └── reserve.dto.ts
-│   ├── events.controller.ts
-│   ├── events.service.ts
-│   └── events.repository.ts
-│
-├── tickets/
-│   ├── dto/
-│   │   ├── buy-ticket.dto.ts
-│   │   └── validate-ticket.dto.ts
-│   ├── tickets.controller.ts
-│   ├── tickets.service.ts
-│   └── tickets.repository.ts
-│
-├── ticketsmaster/
-│   └── ticketsmaster.service.ts
-│
-├── guards/
-│   ├── auth.guards.ts
-│   └── roles.guard.ts
-│
-├── common/
-│   └── roles.decorator.ts
-│
-├── Prisma/
-│   └── prisma.service.ts
-│
-└── main.ts
-```
-
-A estrutura pode variar conforme a organização final do repositório.
-
----
-
-# Arquitetura da aplicação
-
-```text
-                  ┌────────────────────┐
-                  │      Frontend      │
-                  │   React + Vite     │
-                  └─────────┬──────────┘
-                            │
-                         HTTP/JSON
-                            │
-                            ▼
-                  ┌────────────────────┐
-                  │      NestJS        │
-                  │       API         │
-                  └─────────┬──────────┘
-                            │
-             ┌──────────────┼──────────────┐
-             │              │              │
-             ▼              ▼              ▼
-        Controllers      Guards         Services
-                            │              │
-                            │              ▼
-                            │         Repositories
-                            │              │
-                            │              ▼
-                            │           Prisma
-                            │              │
-                            │              ▼
-                            │         PostgreSQL
-                            │
-                            ▼
-                       Autorização
-
-                  ┌────────────────────┐
-                  │    Ticketmaster    │
-                  │   Discovery API    │
-                  └────────────────────┘
-```
-
----
-
-# Tecnologias utilizadas
-
-## Backend
-
-- NestJS
 - Node.js
-- TypeScript
-
-## Banco de dados
-
+- npm
 - PostgreSQL
-- Prisma ORM
+- Git
 
-## Segurança
-
-- JWT
-- Guards do NestJS
-- Controle de acesso por roles
-
-## Integrações
-
-- Ticketmaster Discovery API
-
-## Outros recursos
-
-- UUID para códigos de ingressos.
-- DTOs.
-- Repository Pattern.
-- Transações Prisma.
+Também é necessário possuir uma chave da Ticketmaster Discovery API para utilizar a integração de eventos externos.
 
 ---
 
-# Como executar
+# Instalação
 
-## 1. Clone o repositório
+Clone o projeto e entre na pasta:
 
 ```bash
-git clone URL_DO_REPOSITORIO
-cd nome-do-projeto
+cd ingressinho-back-end
 ```
 
-## 2. Instale as dependências
+Instale as dependências:
 
 ```bash
 npm install
 ```
 
-## 3. Configure o banco de dados
-
-Crie um banco PostgreSQL e configure a conexão através da variável de ambiente utilizada pelo projeto.
-
-Exemplo:
-
-```env
-DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/ingressinho"
-```
-
-> Utilize os nomes das variáveis definidos no seu `.env` e na configuração do Prisma caso sejam diferentes.
-
 ---
 
 # Variáveis de ambiente
 
-As principais configurações esperadas pelo backend incluem:
+Crie um arquivo:
 
-```env
-DATABASE_URL=
-JWT_SECRET=
-TICKETMASTER_API_KEY=
+```text
+.env
 ```
+
+com as variáveis necessárias.
 
 Exemplo:
 
 ```env
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/ingressinho"
-JWT_SECRET="sua-chave-secreta"
-TICKETMASTER_API_KEY="sua-chave-da-ticketmaster"
+DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/DB_NAME"
+JWT_SECRET="your-jwt-secret"
+TICKETMASTER_API_KEY="your-api-key-ticketmaster"
 ```
 
-Nunca publique valores reais de secrets, tokens ou chaves de API no repositório.
+### DATABASE_URL
+
+Define a conexão com o PostgreSQL.
+
+### JWT_SECRET
+
+Chave utilizada para assinatura dos tokens JWT.
+
+### TICKETMASTER_API_KEY
+
+Chave utilizada para comunicação com a Ticketmaster Discovery API.
 
 ---
 
-# Prisma
+# Banco de dados
 
-Depois de configurar o banco, gere o Prisma Client:
-
-```bash
-npx prisma generate
-```
-
-Para aplicar migrations em ambiente de desenvolvimento:
+Depois de configurar o PostgreSQL e o `.env`, execute as migrations do Prisma:
 
 ```bash
 npx prisma migrate dev
 ```
 
-Para consultar o banco através do Prisma Studio:
+Depois gere o Prisma Client:
 
 ```bash
-npx prisma studio
-```
-
-Em ambiente de produção, utilize o fluxo de migrations apropriado ao projeto, por exemplo:
-
-```bash
-npx prisma migrate deploy
+npx prisma generate
 ```
 
 ---
 
-# ▶ Executando o servidor
+# Executando o projeto
 
-Modo desenvolvimento:
+## Desenvolvimento
 
 ```bash
 npm run start:dev
 ```
 
-Modo normal:
+O backend será executado na porta:
+
+```text
+3000
+```
+
+---
+
+## Desenvolvimento sem watch
 
 ```bash
 npm run start
 ```
 
-Build:
+---
+
+## Produção
+
+Primeiro faça o build:
 
 ```bash
 npm run build
 ```
 
-Execução do build:
+Depois:
 
 ```bash
 npm run start:prod
 ```
 
-Os scripts disponíveis podem ser conferidos no `package.json`.
+---
+
+# Testes
+
+O projeto possui testes unitários e testes E2E.
+
+A suíte de testes cobre principalmente:
+
+- Auth.
+- Users.
+- Events.
+- Tickets.
+- Guards.
+- Roles.
+- bcrypt.
+- Ticketmaster.
+- Fluxos completos da aplicação.
+
+---
+
+# Testes unitários
+
+Para executar os testes:
+
+```bash
+npm test
+```
+
+Para executar observando alterações:
+
+```bash
+npm run test:watch
+```
+
+---
+
+# Coverage
+
+Para gerar o relatório de cobertura:
+
+```bash
+npm run test:cov
+```
+
+A cobertura considera:
+
+```text
+Statements
+Branches
+Functions
+Lines
+```
+
+---
+
+# Testes E2E
+
+Os testes E2E utilizam:
+
+```text
+Jest
+Supertest
+NestJS Testing
+PostgreSQL
+Prisma
+```
+
+A aplicação real do NestJS é inicializada durante os testes.
+
+A integração com a Ticketmaster é substituída por um mock para manter os testes determinísticos e independentes da disponibilidade da API externa.
+
+Para executar:
+
+```bash
+npm run test:e2e
+```
+
+O projeto possui configuração específica para o ambiente de testes:
+
+```text
+.env.test
+```
+
+---
+
+# O que os testes E2E cobrem
+
+A suíte E2E cobre o fluxo principal da aplicação, incluindo:
+
+### Health check
+
+```text
+GET /health
+```
+
+### Autenticação
+
+- Cadastro.
+- Login.
+- Senha incorreta.
+- Logout.
+- Validação de dados.
+
+### Autorização
+
+- Acesso sem token.
+- Restrição de CLIENT.
+- Restrição de ORGANIZER.
+- Restrição de GATEKEEPER.
+
+### Eventos
+
+- Criação.
+- Eventos do organizador.
+- Eventos da portaria.
+- Busca de evento.
+- Reserva.
+- Controle de capacidade.
+
+### Ingressos
+
+- Compra.
+- Listagem dos ingressos do cliente.
+- Geração de tickets.
+- Consulta pública.
+- Validação.
+- Reutilização de ingresso.
+- Tentativa de validação em evento incorreto.
+
+---
+
+# Resultado dos testes
+
+A suíte atual possui:
+
+```text
+12 suítes de teste
+83 testes
+```
+
+Todos os testes estão passando atualmente.
+
+A última execução apresentou:
+
+```text
+Test Suites: 12 passed, 12 total
+Tests:       83 passed, 83 total
+```
+
+A cobertura atual registrada no projeto está aproximadamente em:
+
+```text
+Statements: 70%
+Branches:   72%
+Functions:  59%
+Lines:      70%
+```
+
+O foco da suíte está principalmente nas regras de negócio e nos fluxos críticos da aplicação.
+
+---
+
+# Qualidade de código
+
+O projeto utiliza:
+
+- ESLint
+- Prettier
+- TypeScript
+- Testes automatizados
+
+Para executar o lint:
+
+```bash
+npm run lint
+```
+
+Para formatar o código:
+
+```bash
+npm run format
+```
 
 ---
 
 # Fluxo completo da aplicação
 
+O fluxo principal pode ser resumido assim:
+
 ```text
                     ┌──────────────┐
-                    │ Ticketmaster │
+                    │  Ticketmaster│
                     └──────┬───────┘
-                           │
-                      eventos
                            │
                            ▼
                     ┌──────────────┐
                     │ Organizador  │
                     └──────┬───────┘
                            │
-                     cria evento
+                    cria evento local
                            │
                            ▼
                     ┌──────────────┐
-                    │   PostgreSQL │
+                    │    Evento    │
                     └──────┬───────┘
                            │
                            ▼
@@ -1120,31 +1526,36 @@ Os scripts disponíveis podem ser conferidos no `package.json`.
                     │    Cliente   │
                     └──────┬───────┘
                            │
-                       compra
+                      compra ingresso
                            │
                            ▼
                     ┌──────────────┐
-                    │   Reserva    │
+                    │  Reservation │
                     └──────┬───────┘
                            │
                            ▼
                     ┌──────────────┐
-                    │   Pagamento  │
+                    │   Payment    │
                     └──────┬───────┘
                            │
                            ▼
                     ┌──────────────┐
-                    │   Ingresso   │
+                    │    Ticket    │
                     └──────┬───────┘
                            │
-                       QR Code
+                     gera shareToken
                            │
                            ▼
                     ┌──────────────┐
-                    │   Porteiro   │
+                    │   QR Code    │
                     └──────┬───────┘
                            │
-                       valida
+                           ▼
+                    ┌──────────────┐
+                    │  Porteiro    │
+                    └──────┬───────┘
+                           │
+                    valida shareToken
                            │
                            ▼
                     ┌──────────────┐
@@ -1154,301 +1565,180 @@ Os scripts disponíveis podem ser conferidos no `package.json`.
 
 ---
 
-# Testando o fluxo
+# Segurança
 
-Uma sequência recomendada para testar a aplicação é:
+O projeto possui algumas medidas de segurança importantes:
 
-### 1. Criar usuários
-
-Criar usuários com os perfis:
-
-```text
-CLIENT
-ORGANIZER
-GATEKEEPER
-```
-
-### 2. Organizador cria um evento
-
-O organizador seleciona um evento disponível e informa:
-
-```text
-capacity
-price
-```
-
-### 3. Cliente compra
-
-O cliente:
-
-```text
-Seleciona evento
-      ↓
-Escolhe quantidade
-      ↓
-Compra
-```
-
-O backend cria:
-
-```text
-Reservation
-Payment
-Ticket(s)
-```
-
-### 4. Cliente apresenta o ingresso
-
-O frontend gera o QR Code utilizando o `shareToken`.
-
-### 5. Porteiro valida
-
-O porteiro:
-
-```text
-Seleciona evento
-      ↓
-Abre câmera
-      ↓
-Lê QR Code
-      ↓
-Envia shareToken
-      ↓
-Backend valida
-```
-
-### 6. Segunda tentativa
-
-Se o mesmo ingresso for utilizado novamente:
-
-```text
-TicketStatus = USED
-```
-
-A API rejeita a entrada.
+- Senhas armazenadas utilizando bcrypt.
+- Autenticação baseada em JWT.
+- Sessões armazenadas no banco.
+- Guards para endpoints protegidos.
+- Controle de acesso por role.
+- Validação dos dados recebidos.
+- Bloqueio de propriedades não previstas nos DTOs.
+- `shareToken` único por ingresso.
+- Bloqueio de reutilização de ingressos.
 
 ---
 
-# Tratamento de erros
+# Considerações atuais
 
-O backend utiliza exceções HTTP do NestJS.
+O projeto possui algumas implementações que representam decisões simplificadas para o escopo da aplicação.
 
-Exemplos utilizados:
+### Pagamento
 
-```typescript
-NotFoundException;
-BadRequestException;
+Atualmente o pagamento é registrado diretamente como:
+
+```text
+APPROVED
 ```
 
-Exemplo:
+Não existe integração com um gateway financeiro real.
 
-```typescript
-if (!event) {
-  throw new NotFoundException('Event not found');
-}
+### Ticketmaster
+
+A Ticketmaster é utilizada como fonte externa de eventos.
+
+Durante os testes automatizados, sua integração é mockada.
+
+### Frontend
+
+O frontend é responsável pela geração visual do QR Code.
+
+O backend fornece o `shareToken` utilizado como conteúdo do QR Code.
+
+### CORS
+
+A configuração atual está direcionada ao ambiente local:
+
+```text
+http://localhost:5173
 ```
 
-E:
-
-```typescript
-if (ticket.status !== TicketStatus.VALID) {
-  throw new BadRequestException('Ticket already used');
-}
-```
-
-Isso permite que o frontend receba respostas HTTP adequadas e apresente mensagens ao usuário.
+Em produção, essa origem deve ser configurada de acordo com o domínio real do frontend.
 
 ---
 
-# Regras de negócio importantes
+# Possíveis evoluções
 
-### Evento inexistente
+Algumas funcionalidades podem ser adicionadas futuramente:
 
-Uma compra não pode ser realizada se o evento não existir.
-
-### Capacidade
-
-O evento possui:
-
-```text
-capacity
-soldCount
-```
-
-A quantidade vendida deve respeitar a capacidade definida.
-
-### Ingresso
-
-Cada ingresso pertence a:
-
-```text
-owner
-event
-reservation
-```
-
-### Validação
-
-Somente ingressos válidos podem ser utilizados.
-
-### Reutilização
-
-Um ingresso já utilizado não pode ser validado novamente.
-
-### Portaria
-
-Somente usuários com perfil `GATEKEEPER` podem validar ingressos.
-
-### Organização
-
-Somente usuários `ORGANIZER` podem criar eventos.
-
-### Compra
-
-Somente usuários `CLIENT` podem comprar ingressos através do endpoint de compra.
+- Integração com gateway de pagamento.
+- Cancelamento de ingressos.
+- Reembolso.
+- Atualização de eventos.
+- Dashboard para organizadores.
+- Relatórios de vendas.
+- Histórico detalhado de validações.
+- Controle de múltiplas portarias por evento.
+- Expiração automática de ingressos.
+- Rate limiting.
+- Refresh token.
+- Documentação OpenAPI/Swagger.
+- Deploy automatizado.
+- Observabilidade e logs estruturados.
 
 ---
 
-# Separação de responsabilidades
+# Organização das responsabilidades
 
-O backend utiliza uma divisão clara:
+| Camada              | Responsabilidade            |
+| ------------------- | --------------------------- |
+| Controller          | Receber requisições HTTP    |
+| Guard               | Autenticação e autorização  |
+| DTO                 | Validar dados de entrada    |
+| Service             | Regras de negócio           |
+| Repository          | Acesso ao banco             |
+| Prisma              | ORM e persistência          |
+| TicketmasterService | Integração externa          |
+| CryptoService       | Hash e verificação de senha |
+
+---
+
+# Principais regras de negócio
+
+## Usuários
+
+- O email deve ser único.
+- Usuários possuem uma role.
+- Senhas são armazenadas utilizando hash.
+
+## Eventos
+
+- Eventos possuem capacidade.
+- Eventos possuem quantidade de ingressos vendidos.
+- Eventos podem estar relacionados a um evento externo da Ticketmaster.
+- Apenas organizadores podem criar eventos.
+- Organizadores visualizam seus próprios eventos.
+
+## Reservas
+
+- Apenas clientes podem reservar.
+- A quantidade não pode ultrapassar a capacidade disponível.
+- O `soldCount` é atualizado durante a operação.
+
+## Ingressos
+
+- Cada ingresso pertence a um usuário.
+- Cada ingresso pertence a um evento.
+- Cada ingresso possui um `shareToken` único.
+- O ingresso começa como `VALID`.
+
+## Validação
+
+- Apenas porteiros podem validar.
+- O ingresso precisa existir.
+- O ingresso precisa estar `VALID`.
+- Após a validação, o ingresso passa para `USED`.
+- Um ingresso `USED` não pode ser utilizado novamente.
+- A validação é registrada no histórico.
+
+---
+
+# Conclusão
+
+O Ingressinho Backend implementa uma API modular para gerenciamento de eventos e ingressos, contemplando autenticação, autorização por perfil, integração com eventos externos, compra de ingressos, geração de tokens de compartilhamento e validação de entrada.
+
+A arquitetura foi organizada para separar responsabilidades entre:
 
 ```text
-Controller
-    │
-    │ recebe HTTP
-    ▼
-Service
-    │
-    │ regras de negócio
-    ▼
-Repository
-    │
-    │ persistência
-    ▼
+Controllers
+     ↓
+Guards
+     ↓
+Services
+     ↓
+Repositories
+     ↓
 Prisma
-    │
-    ▼
+     ↓
 PostgreSQL
 ```
 
-### Controller
+O projeto também conta com uma suíte de testes automatizados cobrindo tanto unidades isoladas quanto fluxos completos através de testes E2E.
 
-Responsável por:
-
-- Rotas.
-- HTTP.
-- Guards.
-- DTOs.
-- Receber parâmetros.
-
-### Service
-
-Responsável por:
-
-- Regras de negócio.
-- Fluxos de compra.
-- Validação.
-- Integrações.
-
-### Repository
-
-Responsável por:
-
-- Consultas.
-- Inserts.
-- Updates.
-- Relacionamentos.
-
-### Prisma
-
-Responsável pela comunicação com o banco.
-
----
-
-# Possíveis melhorias futuras
-
-Algumas evoluções possíveis para o backend:
-
-- [ ] Implementar gateway de pagamento real.
-- [ ] Adicionar controle de concorrência mais robusto para compras simultâneas.
-- [ ] Criar testes unitários para services.
-- [ ] Criar testes de integração.
-- [ ] Criar testes E2E.
-- [ ] Documentar a API com Swagger.
-- [ ] Implementar refresh token.
-- [ ] Implementar recuperação de senha.
-- [ ] Criar histórico completo de validações.
-- [ ] Adicionar cancelamento de ingressos.
-- [ ] Criar reembolso.
-- [ ] Criar dashboard do organizador.
-- [ ] Adicionar paginação.
-- [ ] Adicionar filtros e busca de eventos.
-- [ ] Implementar rate limiting.
-- [ ] Melhorar logs e observabilidade.
-- [ ] Adicionar Docker.
-- [ ] Configurar CI/CD.
-- [ ] Deploy automatizado.
-- [ ] Melhorar controle transacional da compra de ingressos.
-
----
-
-# Integração com o frontend
-
-O frontend do Ingressinho consome essa API para:
+O fluxo central da aplicação é:
 
 ```text
-Autenticação
-      │
-      ├── Login
-      └── Cadastro
-
-Eventos
-      │
-      ├── Listagem
-      ├── Eventos do organizador
-      └── Eventos da portaria
-
-Ingressos
-      │
-      ├── Compra
-      ├── Meus ingressos
-      ├── Consulta
-      └── Validação
+Ticketmaster
+     ↓
+Organizador
+     ↓
+Evento
+     ↓
+Cliente
+     ↓
+Compra
+     ↓
+Ingresso
+     ↓
+QR Code
+     ↓
+Porteiro
+     ↓
+Validação
+     ↓
+Entrada autorizada
 ```
 
-A integração entre os projetos permite o seguinte fluxo:
-
-```text
-React
-  │
-  │ HTTP
-  ▼
-NestJS
-  │
-  ├── Auth
-  ├── Events
-  └── Tickets
-       │
-       ▼
-    Prisma
-       │
-       ▼
- PostgreSQL
-```
-
----
-
-# Licença
-
-Projeto desenvolvido para fins educacionais e de portfólio.
-
----
-
-<p align="center">
-  🎟️ <strong>Ingressinho</strong>
-  <br />
-  Backend desenvolvido com NestJS, Prisma e PostgreSQL.
-  <br /><br />
-  Crie. Compre. Valide. Festeje. 🎉
-</p>
+**Ingressinho — do evento à entrada.**
