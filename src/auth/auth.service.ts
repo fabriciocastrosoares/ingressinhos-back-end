@@ -6,7 +6,7 @@ import {
 import { UsersService } from '../users/users.service';
 import { SignupDto } from './dto/signup.dto';
 import { SignInDto } from './dto/signin.dto';
-import { User } from '@prisma/client';
+import { User } from '../../generated/prisma/client';
 interface JwtPayload {
   sub: string;
   email: string;
