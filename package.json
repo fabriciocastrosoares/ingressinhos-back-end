@@ -11,7 +11,7 @@
     "start": "nest start",
     "start:dev": "fuser -k 3000/tcp 2>/dev/null || true; nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main",
+    "start:prod": "npm run prisma:seed && npm run prisma:prod && node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -20,7 +20,10 @@
     "test:load-envs": "dotenv -e .env.test",
     "test:db:create": "PGPASSWORD=1996 psql -U postgres -h localhost -d postgres -tc \"SELECT 1 FROM pg_database WHERE datname = 'ingressinho_back_end_test';\" | grep -q 1 || createdb -U postgres -h localhost ingressinho_back_end_test",
     "test:prisma": "npm run test:load-envs -- prisma migrate deploy",
-    "test:e2e": "npm run test:db:create && npm run test:load-envs -- prisma migrate deploy && npm run test:load-envs -- jest -- --runInBand --config ./test/jest-e2e.json"
+    "test:e2e": "npm run test:db:create && npm run test:load-envs -- prisma migrate deploy && npm run test:load-envs -- jest -- --runInBand --config ./test/jest-e2e.json",
+    "prisma:prod": "npx prisma migrate deploy",
+    "prisma:seed": "npx prisma seed"
+
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"

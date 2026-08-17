@@ -1275,6 +1275,12 @@ Depois gere o Prisma Client:
 npx prisma generate
 ```
 
+Depois rode o seed para popular o banco de dados para testar
+
+````bash
+npx prisma seed
+
+
 ---
 
 # Executando o projeto
@@ -1283,7 +1289,7 @@ npx prisma generate
 
 ```bash
 npm run start:dev
-```
+````
 
 O backend será executado na porta:
 
